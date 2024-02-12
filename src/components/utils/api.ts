@@ -1,4 +1,4 @@
-export const baseURL = "http://191.101.70.103:5000"
+export const baseURL = "https://3887-2804-4b0-11b0-4800-d419-c775-9b29-9699.ngrok-free.app"
 
 class Categories  {
   
