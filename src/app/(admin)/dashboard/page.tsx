@@ -1,8 +1,8 @@
 "use client";
 import Header from "@/components/Header";
 import Spinner from "@/components/Spinner";
-import { Houses, User } from "@/components/types";
-import Link from "next/link";
+
+
 import {
   Table,
   Thead,
@@ -22,12 +22,18 @@ import {
 } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 const Dashboard = () => {
-  const [user, setUser] = useState<User>();
+  const router = useRouter()
+  const {data:session} = useSession()
+
   const [loading, setLoading] = useState(false);
 
+  
   return (
     <section className="w-full full flex flex-col py-10 gap-10 items-center px-4 ">
+         <Header  />
       <TableContainer width={"100%"}>
         <Table variant="simple">
           <TableCaption>Ultimos pedidos adicionados</TableCaption>

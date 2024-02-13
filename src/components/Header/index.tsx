@@ -1,16 +1,16 @@
 "use client"
-import {getCookies} from "../utils/cookies"
-import { useEffect, useState } from "react";
+
 type User = {
   name:string,
   email:string,
   role:string,
   avatar:string
 }
-import { Avatar, AvatarBadge, AvatarGroup } from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
+import { useSession } from "next-auth/react";
 const Header = ({search,value,onChange, placeholder,handleMenu}:any) => {
-   const [ user, setUser] = useState<User>()
-  
+    const { data:session} = useSession()
+   
   return (
     <div className="w-full h-[70px] flex items-center justify-between px-6 bg-white ">
        
@@ -42,8 +42,8 @@ const Header = ({search,value,onChange, placeholder,handleMenu}:any) => {
         
       </div>
       <div className="w-[30%] h-full flex items-center gap-2">
-      <Avatar name='Leonardo Paiva' src='/user.png'  />
-      <p>Leonardo Paiva</p>
+      <Avatar name={session?.user?.name as any } src={ '/user.png'}  />
+      <p>{session?.user?.name as any}</p>
       </div>
      
     </div>
