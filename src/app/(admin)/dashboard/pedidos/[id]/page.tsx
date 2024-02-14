@@ -1,127 +1,95 @@
-"use client"
+"use client";
+import {
+  Table,
+  TableCaption,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
 import { useState } from "react";
 
 const OrderId = ({ params }: { params: { id: string } }) => {
-     const [valueStatus, setvalueStatus] = useState("")
-     const [ idMail, setIdMail] = useState("")
-      const handlePutOrder = ()=>{
-        if(valueStatus === "enviado" && idMail === ""){
-            alert("Insira o numero do rastreamento para o cliente")
-        }
-        alert("Ordem de serviço atualizada com sucesso!")
-      }
-    return ( 
-    <section className="w-full h-full py-10 px-4">
-          <div className="w-full h-full">
-              <h1>Produtos ordem pedido 01</h1>
-              <div className="w-full h-full">
-                <div className="w-full grid grid-cols-6 gap-4">
-                    <div className="p-1">
-                    <img src="/2.png" alt="Revista" />
-                     <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                 
-                    <div>
-                    <img src="/2.png" alt="Revista" />
-                    <p>Revista Nome</p>
-                     <p>Ediçao</p>
-                    </div>
-                  
-                </div>
-              </div>
-              <h1>Detalhes do Pedido</h1>
-              <div className="flex gap-1 bg-gray-300 py-4 rounded-md px-2">
-              <div className="w-[50%] h-full flex flex-col items-center justify-start gap-2">
-               
-               <div className="w-full flex gap-2">
-                 <p>Nome</p>
-                 <p>Leonardo Paiva</p>
-               </div>
-               <div className="w-full flex gap-2">
-                 <p>E-mail</p>
-                 <p>leonardopaiva@gmail.com</p>
-               </div>
-               <div className="w-full flex gap-2">
-                 <p>Telefone</p>
-                 <p>55 9999-999-999</p>
-               </div>
-              </div>
-              <div className="w-[50%] h-full flex flex-col items-center justify-start gap-2">
-               
-               <div className="w-full flex gap-1">
-                 <p>Endereço</p>
-                 <p>Rua dos desejos 389</p>
-               </div>
-               <div className="w-full flex gap-1">
-                 <p>Cidade</p>
-                 <p>Blumenau</p>
-               </div>
-               <div className="w-full flex gap-1">
-                 <p>Bairro</p>
-                 <p>Floresta / RS</p>
-               </div>
-               <div className="w-full flex gap-1">
-                 <p>Qtd</p>
-                 <p>8 items</p>
-               </div>
-               <div className="w-full flex gap-1">
-                 <p>Valor</p>
-                 <p>R$ 1065,00</p>
-               </div>
-               <div className="w-full flex gap-1">
-                 <p>Status</p>
-                 <select value={valueStatus} onChange={(e)=>setvalueStatus(e.target.value)} className="outline-none rounded-md">
-                    <option value="andamento">Em andamento</option>
-                    <option value="enviado">Enviado</option>
-                    <option value="recebido">Recebido</option>
-                    <option value="cancelado">Cancelar</option>
-                    <option value="retirado">Retirado</option>
-                 </select>
-               </div>
-               <div className="w-full flex flex-col gap-1">
-                 <label htmlFor="">Inserir codigo de rastreamento</label>
-                 <input value={idMail} onChange={(e)=>setIdMail(e.target.value)} type="text" className="w-[80%] py-2 rounded-md  pl-4 outline-none" placeholder="Id de rastreamento" />
-               </div>
+  const date = new Date();
+  const [valueStatus, setvalueStatus] = useState("");
+  const [idMail, setIdMail] = useState("");
+  const handlePutOrder = () => {
+    if (valueStatus === "enviado" && idMail === "") {
+      alert("Insira o numero do rastreamento para o cliente");
+    }
+    alert("Ordem de serviço atualizada com sucesso!");
+  };
+  return (
+    <section className="w-full  py-10 px-4">
+      <div className="w-full h-full flex-col-reverse md:flex-row justify-center">
+        <div className="w-full md:w-[70%]">
+          <h1 className="py-2">Produtos para entrega</h1>
+          <div className="border-b-[1px] border-gray-400 flex gap-4">
+            <Table variant="simple" py={20}>
+              <TableCaption>Detalhes do pedido</TableCaption>
+              <Thead background={"#14b7a1"}>
+                <Tr>
+                  <Th color={"white"}>Data</Th>
+                  <Th color={"white"}>Produto</Th>
+                  <Th color={"white"}>Volume</Th>
+                  <Th color={"white"}>Qtd</Th>
+                  <Th color={"white"}>Status</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td>{date.toLocaleDateString("pt-br")}</Td>
+                  <Td>Pro Skate</Td>
+                  <Td>volume 1</Td>
+                  <Td>1</Td>
+                  <Td>Á enviar</Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </div>
+          <form className="w-full py-4 ">
+          <div className="w-full flex  gap-4">
+            <div className="w-[50%] flex flex-col gap-2">
+            Atualizar Status
+            <select className="w-full py-3 border-[1px] border-gray-400 rounded-md pl-2 outline-none">
+              <option value="">Enviado</option>
+              <option value="">Entregue</option>
+            </select>
+            </div>
+            <div className="w-[50%] flex flex-col gap-2">
+              <label htmlFor="">Codigo de Rastreio</label>
+              <input type="text" className="w-full py-3 border-[1px] border-gray-400 rounded-md pl-2 outline-none" placeholder="Insira o codigo dos correios"/>
+            </div>
+           
 
-              </div>
-              </div>
           </div>
-          <div className="w-full flex items-center justify-center py-4">
-            <button onClick={handlePutOrder} className="w-40 bg-black text-white rounded-md py-2">Atualizar Ordem</button>
+          <div className="w-full flex items-center justify-center pt-4">
+          <button
+          onClick={handlePutOrder}
+          className="w-40 bg-[#14b7a1] text-white rounded-md py-2"
+        >
+          Atualizar Ordem
+        </button>
           </div>
-    </section> 
-    );
-}
- 
+        
+        </form>
+        </div>
+        <div className="w-full md:w-[30%] flex flex-col gap-3 px-4">
+          <h1 className="text-center">Detalhes Comprador</h1>
+          <div className="flex flex-col gap-2">
+            <h1>Leonardo Paiva</h1>
+            <p>(51) 9999999</p>
+            <p>Rua Flores da cunha 593</p>
+            <p>Bairro Floresta</p>
+            <p>Cidade Porto Alegre</p>
+            <p>Cep: 999999999</p>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+  );
+};
+
 export default OrderId;

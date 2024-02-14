@@ -16,6 +16,7 @@ const handleLogin = async (e:any)=>{
     setError(false)
   e.preventDefault()
   const login = await signIn("credentials",{redirect:false, email,password})
+  console.log(login)
   if(login?.error){
     setError(true)
     setErrorText(login?.error as string)

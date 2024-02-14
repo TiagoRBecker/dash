@@ -30,7 +30,7 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
   }, []);
   const getUserId = async () => {
    
-    const get = await fetch(`http://localhost:5000/employee/${slug}`, {
+    const get = await fetch(`${baseURL}/employee/${slug}`, {
       method: "GET",
      
     });
