@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@chakra-ui/react";
 import { object } from "zod";
 import { create } from "domain";
+import { baseURL } from "@/components/utils/api";
 const AddEmployee = () => {
   const router = useRouter();
   const [avatar, setAvatar] = useState<any>("");
@@ -58,7 +59,7 @@ const AddEmployee = () => {
     if (Add.isConfirmed) {
       try {
         //deleta a categoria e apos exibe  um modal Categoria deletada com sucesso!
-        const addEmployee = await fetch(`http://localhost:5000/create-employee`, {
+        const addEmployee = await fetch(`${baseURL}/create-employee`, {
           method: "POST",
           
           body: formData ,
