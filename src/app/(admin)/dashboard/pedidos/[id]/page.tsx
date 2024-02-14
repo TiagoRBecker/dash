@@ -22,7 +22,7 @@ const OrderId = ({ params }: { params: { id: string } }) => {
   };
   return (
     <section className="w-full  py-10 px-4">
-      <div className="w-full h-full flex-col-reverse md:flex-row justify-center">
+      <div className="w-full h-full flex-col-reverse md:flex md:flex-row justify-center">
         <div className="w-full md:w-[70%]">
           <h1 className="py-2">Produtos para entrega</h1>
           <div className="border-b-[1px] border-gray-400 flex gap-4">
