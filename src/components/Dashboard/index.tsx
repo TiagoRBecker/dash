@@ -67,7 +67,7 @@ const Dash = ({ onClose }: any) => {
                       flex="1"
                       textAlign="left"
                       color={"white"}
-                      onClick={()=>{ signOut({callbackUrl:"/"})}}
+                      onClick={()=>{ signOut()}}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

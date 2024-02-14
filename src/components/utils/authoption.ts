@@ -9,9 +9,9 @@ export const authOptions = {
 
   pages: {
     signOut: "/",
-    signIn: "/aut/signin",
+    signIn: "/",
   },
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
