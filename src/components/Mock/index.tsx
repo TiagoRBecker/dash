@@ -302,7 +302,7 @@ export const menuLinks = [
   ),
    links:[
     {name:"Exibir Colaboradores", path:"/dashboard/colaboradores"},
-    {name:"Cadastrar Colaboradores", path:"/dashboard/colaboradores/cadastrar"},
+    {name:"Cadastrar Colaboradores", path:"/dashboard/colaboradores/adicionar_colaborador"},
     
  
    ]

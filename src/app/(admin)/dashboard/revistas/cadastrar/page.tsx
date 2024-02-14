@@ -8,11 +8,13 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Magazine,  magazine } from "@/components/utils/validation";
+import { Magazine, magazine } from "@/components/utils/validation";
+import { HStack, Tag, TagCloseButton, TagLabel } from "@chakra-ui/react";
 
 const Magazine = () => {
   const router = useRouter();
   useEffect(() => {
+    getEmployee();
     getCat();
   }, []);
   const {
@@ -27,8 +29,10 @@ const Magazine = () => {
     mode: "all",
     resolver: zodResolver(magazine),
   });
-  const selectCat = watch("categoryId");
+  const id = watch("employeeId");
   const [categories, setCategories] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [employeesID, setEmployeesID] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [avatar, setAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
@@ -57,17 +61,45 @@ const Magazine = () => {
     setAvatar("") as any;
   };
   const getCat = async () => {
-    const categories = await fetch(`${baseURL}/categories`,{
-      method:"GET"
-    })
-    const response = await categories.json()
+    const categories = await fetch(`${baseURL}/categories`, {
+      method: "GET",
+    });
+    const response = await categories.json();
     setCategories(response);
     return;
   };
-  const filterSubCAtegoryByCategory = categories.filter(
-    (name: any) => Number(name.id) === Number(selectCat)
-  );
- console.log(errors)
+  const getEmployee = async () => {
+    const employee = await fetch(`${baseURL}/employees`, {
+      method: "GET",
+    });
+    const response = await employee.json();
+    setEmployees(response);
+    return;
+  };
+  const addEmployees = () => {
+    const filteredEmployee = employees.find(
+      (employee: any) => employee.id === Number(id)
+    ) as any;
+    if (filteredEmployee) {
+      const checkIDArray = employeesID.some(
+        (emp: any) => emp.id === filteredEmployee.id
+      );
+      if (!checkIDArray) {
+        setEmployeesID((prev: any) => [...prev, filteredEmployee]);
+      }
+    }
+  };
+  const handleRemoveEmployee = (id: any) => {
+    setEmployeesID((prev: any) => {
+      const pos = prev.findIndex((item: any) => item.id === Number(id));
+      const newArrayEmployee = prev.filter(
+        (value: any, index: any) => index !== pos
+      );
+
+      return newArrayEmployee;
+    });
+  };
+
   const onSubmit = handleSubmit(async (data: any) => {
     if (avatar === "" || url === "") {
       setErrorPicture(true);
@@ -77,6 +109,8 @@ const Magazine = () => {
     const formData = new FormData();
     formData.append("cover_file", avatar);
     formData.append("pdf_file", url);
+    
+    formData.append("employes", JSON.stringify(employeesID));
 
     for (const key in data) {
       formData.append(key, data[key] as any);
@@ -125,7 +159,9 @@ const Magazine = () => {
 
   return (
     <section className="w-full h-full px-4 py-2 bg-slate-300">
-      <h1 className="text-xl text-gray-400 uppercase py-4">Adicionar Revista</h1>
+      <h1 className="text-xl text-gray-400 uppercase py-4">
+        Adicionar Revista
+      </h1>
       <form
         className="w-full h-full  rounded-md bg-white py-2 px-2 "
         encType="multipart/form-data"
@@ -205,10 +241,10 @@ const Magazine = () => {
                 {errors.description.message}
               </p>
             )}
-            <div className="w-full  flex items-center justify-between">
-              <p>Categoria</p>
+            <div className="w-full  flex flex-col items-center justify-between gap-2">
+              <p className="text-left w-full">Categorias</p>
               <select
-                className="w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                 {...register("categoryId")}
               >
                 <option value="">Selecionar</option>
@@ -218,14 +254,70 @@ const Magazine = () => {
                   </option>
                 ))}
               </select>
+              <div className="w-[50px]">
+
+              </div>
             </div>
             {errors.categoryId && (
               <p className="text-red-400 text-sm">
                 {errors.categoryId.message as any}
               </p>
             )}
-            
-           
+            <div className="w-full  flex flex-col  gap-2 items-center justify-between">
+              <p className="text-left w-full">Colaboradores</p>
+              <div className="flex w-full gap-2">
+              <select
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                {...register("employeeId")}
+              >
+                <option value="">Selecionar</option>
+                {employees.map((employee: any, index: any) => (
+                  <>
+                    <option key={index} value={employee.id}>
+                      {employee.name}
+                    </option>
+                  </>
+                ))}
+              </select>
+              <button
+                className="w-[50px]  bg-[#14b7a1] h-7 flex items-center justify-center text-white"
+                onClick={addEmployees}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+              </button>
+              </div>
+            </div>
+          <div className="w-full flex flex-wrap">
+            <HStack spacing={4} >
+              {employeesID?.map((size: any, index: any) => (
+                <Tag
+                  size={"sm"}
+                  key={index}
+                  borderRadius="full"
+                  variant="solid"
+                  colorScheme="green"
+                >
+                  <TagLabel>{size.name} </TagLabel>
+                  <TagCloseButton
+                    onClick={() => handleRemoveEmployee(size.id)}
+                  />
+                </Tag>
+              ))}
+            </HStack>
+            </div>
           </div>
 
           <div className="w-[35%] h-full  flex flex-col gap-3 px-4 py-4">

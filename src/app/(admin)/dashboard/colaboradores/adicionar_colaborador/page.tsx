@@ -2,11 +2,13 @@
 import { User, user } from "@/components/utils/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {  useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-
+import { Input } from "@chakra-ui/react";
+import { object } from "zod";
+import { create } from "domain";
 const AddEmployee = () => {
   const router = useRouter();
   const [avatar, setAvatar] = useState<any>("");
@@ -14,32 +16,33 @@ const AddEmployee = () => {
   const {
     register,
     handleSubmit,
-    reset,
-
     formState: { errors },
   } = useForm<User>({
     mode: "all",
     resolver: zodResolver(user),
   });
- //Funçao de upload que faz o envio da imagem para backend
+  //Funçao de upload que faz o envio da imagem para backend
   const upload = async (e: any) => {
     setLoading(true);
-    const formdate = new FormData();
-    formdate.append("file", e.target.files[0]);
-    const upload = await fetch("http://localhost:5000/perfil", {
-      method: "POST",
-      body: formdate,
-    });
-    if (upload.status === 200) {
-      const file = await upload.json();
-      setAvatar(file.file);
+    const file = e.target.files[0];
+  
+    if (file) {
+      setAvatar(file);
       setLoading(false);
       return;
     }
   };
+
+
   //Funçao que carrega os dados para backend
   const onSubmit = handleSubmit(async (data) => {
-    const formData = { ...data, avatar};
+  const formData = new FormData() 
+   formData.append("profile",avatar)
+
+   for (const key in data as any) {
+    formData.append(key, (data as any)[key]);
+  }
+     
     //Lib para questionar se deseja cadastrar novo usuario
     const Add = await Swal.fire({
       position: "center",
@@ -55,12 +58,10 @@ const AddEmployee = () => {
     if (Add.isConfirmed) {
       try {
         //deleta a categoria e apos exibe  um modal Categoria deletada com sucesso!
-        const addEmployee = await fetch(`http://localhost:5000/user-create`, {
+        const addEmployee = await fetch(`http://localhost:5000/create-employee`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData ),
+          
+          body: formData ,
         });
 
         await Swal.fire(
@@ -81,23 +82,27 @@ const AddEmployee = () => {
         );
       }
     }
+    
   });
 
   return (
-    <section className="flex w-full h-full items-center justify-center py-4">
-      <div className="w-1/2  flex flex-col items-center justify-center gap-2">
+    <section className="flex flex-col w-1/2 mx-auto h-full items-center justify-center py-4 gap-2">
+      <h1 className="text-xl font-bold uppercase text-[#005183]">
+        Adiconar Colaborador
+      </h1>
+      <div className="w-full  flex flex-col items-center justify-center gap-2">
         {loading ? (
           <p>Carregando aguarde...</p>
         ) : (
           <>
             <img
-              src={avatar ? avatar : "/house.avif"}
+              src={ avatar ? URL.createObjectURL(avatar) :"/user.png"}
               alt="Perfil"
-              className="w-40 h-40 object-cover rounded-full"
+              className="w-20 h-20 object-cover rounded-full"
             />
             <input id="file" type="file" hidden onChange={upload} />
             <label
-              className="cursor-pointer bg-[#005183] px-4 text-white py-2 rounded-md"
+              className="cursor-pointer bg-[#14b7a1] px-4 text-white py-1 rounded-md"
               htmlFor="file"
             >
               Carregar Imagem
@@ -105,15 +110,12 @@ const AddEmployee = () => {
           </>
         )}
       </div>
-      <div className="flex-grow ">
+      <div className="w-full ">
         <form
           encType="multipart/form-data"
           onSubmit={onSubmit}
           className="w-full h-full flex flex-col items-center justify-center mx-auto px-5"
         >
-          <h1 className="text-xl font-bold uppercase text-[#005183]">
-            Adiconar Colaborador
-          </h1>
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
               Nome
@@ -143,35 +145,19 @@ const AddEmployee = () => {
               <p className="text-sm text-red-500">{errors.email.message}</p>
             )}
           </div>
-          <div className="w-full flex gap-2">
-            <div className="w-[70%] flex flex-col">
-              <label htmlFor="" className="text-lg text-gray-400">
-                Creci
-              </label>
-              <input
-                {...register("creci")}
-                type="text"
-                className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-                placeholder="Digite o creci"
-              />
-              {errors.creci && (
-                <p className="text-sm text-red-500">{errors.creci.message}</p>
-              )}
-            </div>
-            <div className="w-[30%] flex flex-col">
-              <label htmlFor="" className="text-lg text-gray-400">
-                UF
-              </label>
-              <input
-                {...register("creciUF")}
-                type="text"
-                className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-                placeholder="Estado"
-              />
-              {errors.creciUF && (
-                <p className="text-sm text-red-500">{errors.creciUF.message}</p>
-              )}
-            </div>
+          <div className="flex flex-col w-full">
+            <label htmlFor="" className="text-lg text-gray-400">
+              Profissão
+            </label>
+            <input
+              {...register("profession")}
+              type="text"
+              className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
+              placeholder="Digite a profissão"
+            />
+            {errors.profession && (
+              <p className="text-sm text-red-500">{errors.profession.message}</p>
+            )}
           </div>
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
@@ -187,22 +173,7 @@ const AddEmployee = () => {
               <p className="text-sm text-red-500">{errors.phone.message}</p>
             )}
           </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="" className="text-lg text-gray-400">
-              Cargo
-            </label>
-            <select
-              {...register("role")}
-              className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-            >
-              <option value="">Selecionar Cargo</option>
-              <option value="ADMIN">Administrador</option>
-              <option value="USER">Colaborador</option>
-            </select>
-            {errors.role && (
-              <p className="text-sm text-red-500">{errors.role.message}</p>
-            )}
-          </div>
+
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
               Senha
@@ -211,6 +182,7 @@ const AddEmployee = () => {
               {...register("password")}
               type="text"
               className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
+              placeholder="Digite a senha"
             />
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -218,7 +190,7 @@ const AddEmployee = () => {
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[#005183] rounded-md text-white mt-4"
+            className="px-4 py-2 bg-[#14b7a1] rounded-md text-white mt-4"
           >
             Adicionar Colaborador
           </button>

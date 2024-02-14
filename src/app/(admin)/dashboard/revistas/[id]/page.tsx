@@ -12,6 +12,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {  Magazine,  magazine } from "@/components/utils/validation";
 
 const EditMagazine = ({ params }: { params: { id: string } }) => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [avatar, setAvatar] = useState<any>("");
+  const [url, setUrl] = useState("");
     const {
         register,
         handleSubmit,
@@ -29,15 +33,13 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
   const selectCat = watch("categoryId");
   const slug = params.id;
   useEffect(() => {
-    getCat();
+    getCategories()
     getByMagazine();
+   
   }, []);
    
-  console.log(selectCat)
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [avatar, setAvatar] = useState<any>("");
-  const [url, setUrl] = useState("");
+
+  
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
     const files = e.target.files as any;
@@ -63,13 +65,7 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
   const clearImage = () => {
     setAvatar("") as any;
   };
-  const getCat = async () => {
-
-    const categories = await CategoriesApi.getCategories();
-    setCategories(categories);
-    setLoading(false)
-    return;
-  };
+  
 
   const getByMagazine = async () => {
     const getArticle = await fetch(`${baseURL}/magazine/${slug}`, {
@@ -79,9 +75,17 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
     Object.keys(response).forEach((key: any) => {
       setValue(key, response[key] as any);
     });
+  
     setLoading(false)
     return
   };
+  const getCategories = async ()=>{
+    const getCat = await fetch(`${baseURL}/categories`,{
+      method:"GET"
+    })
+    const response = await getCat.json()
+    setCategories(response)
+  }
  
   
   const onSubmit = handleSubmit(async (data: any) => {
@@ -134,11 +138,15 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
     }
   });
   if(loading){
-    <section className="w-full h-screen flex items-center justify-center">
-     <Spinner/>
-    </section>
+    return(
+      <section className="w-full h-screen flex items-center justify-center">
+      <Spinner/>
+     </section>
+    )
+
+   
   }
- console.log(errors)
+ 
   return (
     <section className="w-full h-full px-4 py-2 bg-slate-300">
       <h1 className="text-xl text-gray-400 uppercase py-4">Editar Revista</h1>

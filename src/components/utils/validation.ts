@@ -9,16 +9,8 @@ export const user = z.object({
   phone: z.string().min(11, {
     message: "Necessário  preencher o campo telefone com 11 dígitos",
   }),
-  creci: z.string().min(6, {
+  profession: z.string().min(1, {
     message: "Necessário  preencher o campo Creci",
-  }),
-  creciUF: z.string().min(2, {
-    message: "Estado",
-  }),
-  role: z.enum(["ADMIN", "USER"], {
-    errorMap: () => {
-      return { message: "Informe o cargo do colaborador" };
-    },
   }),
   password: z.string().min(6, {
     message: "Necessário  preencher o campo Senha",
@@ -77,6 +69,7 @@ export const magazine = z.object({
     },
     { message: "Selecione uma opção válida" }
   ),
+  employeeId: z.optional(z.any()),
 
   articleId: z.any().refine(
     (value) => {

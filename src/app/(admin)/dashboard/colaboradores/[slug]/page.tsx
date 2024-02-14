@@ -6,8 +6,11 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import {getCookies} from "@/components/utils/cookies";
+import { baseURL } from "@/components/utils/api";
+import Spinner from "@/components/Spinner";
 const EditEmploye = ({ params }: { params: { slug: string } }) => {
   const [avatar, setAvatar] = useState<string>("");
+ const [newAvatar,setNewAvatar] = useState<any>("")
   const [loading, setLoading] = useState(false);
   const slug = params.slug;
   const router = useRouter();
@@ -26,42 +29,44 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
     getUserId();
   }, []);
   const getUserId = async () => {
-     const token = await getCookies()
-    const get = await fetch(`http://localhost:5000/users/${slug}`, {
+   
+    const get = await fetch(`http://localhost:5000/employee/${slug}`, {
       method: "GET",
-      headers:{
-        Authorization: `Bearer ${token}`
-      }
+     
     });
-    const data = await get.json();
-    
-     setAvatar(data.avatar)
-    //Funçao para setar os values que vem  do banco de dados
-    //setValue("inputname", data.name..)
-    Object.entries(data).forEach(([key, value]: any) => {
-      setValue(key as keyof User, value);
-    });
+    if(get.status == 200){
+      const data = await get.json();
+ 
+      setAvatar(data?.avatar)
+     //Funçao para setar os values que vem  do banco de dados
+     //setValue("inputname", data.name..)
+     Object?.entries(data)?.forEach(([key, value]: any) => {
+       setValue(key as keyof User, value);
+     });
+     setLoading(false)
+    }
+   
   };
  //Funçao caso usuario queira trocar a foto 
   const upload = async (e: any) => {
-    setLoading(true);
-    const formdate = new FormData();
-    formdate.append("file", e.target.files[0]);
-    const upload = await fetch("http://localhost:5000/perfil", {
-      method: "POST",
-      body: formdate,
-    });
-    if (upload.status === 200) {
-      const file = await upload.json();
-      setAvatar(file.file);
+     const file = e.target.files[0]
+     
+    if(file){
+      setNewAvatar(file);
       setLoading(false);
       return;
     }
-  };
+    
+    
+    }
+  
  //Funçao que envia os dados para backend
-  const onSubmit = handleSubmit(async (data) => {
-    const formData = {...data,slug,avatar}
-
+  const onSubmit = handleSubmit(async (data:any) => {
+     const formData = new FormData()
+     formData.append("profile",newAvatar)
+     for (const key in data) {
+      formData.append(key, data[key] as any);
+    }
     //Lib que faz o visual para cliente , questiona se ele realmente quer mudar os dados
     const edit = await Swal.fire({
       position: "center",
@@ -77,12 +82,9 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
     if (edit.isConfirmed) {
       try {
         //deleta a categoria e apos exibe  um modal Categoria deletada com sucesso!
-        const addCat = await fetch(`http://localhost:5000/user-update`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+        const addCat = await fetch(`${baseURL}/employee-update/${slug}`, {
+          method: "POST",
+          body: formData,
         });
 
         await Swal.fire(
@@ -103,22 +105,31 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
       }
     }
   });
-
+ if(loading){
+  return(
+    <section className="w-full h-screen flex items-center justify-center">
+      <Spinner/>
+    </section>
+  )
+ }
   return (
-    <section className="flex w-full h-full items-center justify-center">
-       <div className="w-1/2  flex flex-col items-center justify-center gap-2">
+    <section className="flex flex-col w-1/2 mx-auto h-full items-center justify-center py-4 gap-2">
+      <h1 className="text-xl font-bold uppercase text-[#005183]">
+        Adiconar Colaborador
+      </h1>
+      <div className="w-full  flex flex-col items-center justify-center gap-2">
         {loading ? (
           <p>Carregando aguarde...</p>
         ) : (
           <>
             <img
-              src={avatar ? avatar : "/user.png"}
+              src={ newAvatar ? URL.createObjectURL(newAvatar) :avatar}
               alt="Perfil"
-              className="w-40 h-40 object-cover rounded-full"
+              className="w-20 h-20 object-cover rounded-full"
             />
             <input id="file" type="file" hidden onChange={upload} />
             <label
-              className="cursor-pointer bg-[#005183] px-4 text-white py-2 rounded-md"
+              className="cursor-pointer bg-[#14b7a1] px-4 text-white py-1 rounded-md"
               htmlFor="file"
             >
               Carregar Imagem
@@ -126,14 +137,12 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
           </>
         )}
       </div>
-      <div className="flex-grow ">
+      <div className="w-full ">
         <form
+          encType="multipart/form-data"
           onSubmit={onSubmit}
           className="w-full h-full flex flex-col items-center justify-center mx-auto px-5"
         >
-          <h1 className="text-xl font-bold uppercase text-[#005183]">
-            Adiconar Colaborador
-          </h1>
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
               Nome
@@ -143,7 +152,11 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
               type="text"
               className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
               placeholder="Digite o nome"
+              accept="image/*"
             />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
           </div>
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
@@ -155,30 +168,23 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
               className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
               placeholder="Digite o email"
             />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
-          <div className="w-full flex gap-2">
-            <div className="w-[70%] flex flex-col">
-              <label htmlFor="" className="text-lg text-gray-400">
-                Creci
-              </label>
-              <input
-                {...register("creci")}
-                type="text"
-                className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-                placeholder="Digite o creci"
-              />
-            </div>
-            <div className="w-[30%] flex flex-col">
-              <label htmlFor="" className="text-lg text-gray-400">
-                UF
-              </label>
-              <input
-                {...register("creciUF")}
-                type="text"
-                className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-                placeholder="Estado"
-              />
-            </div>
+          <div className="flex flex-col w-full">
+            <label htmlFor="" className="text-lg text-gray-400">
+              Profissão
+            </label>
+            <input
+              {...register("profession")}
+              type="text"
+              className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
+              placeholder="Digite a profissão"
+            />
+            {errors.profession && (
+              <p className="text-sm text-red-500">{errors.profession.message}</p>
+            )}
           </div>
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
@@ -190,19 +196,11 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
               className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
               placeholder="Digite o telefone"
             />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone.message}</p>
+            )}
           </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="" className="text-lg text-gray-400">
-              Cargo
-            </label>
-            <select
-              {...register("role")}
-              className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
-            >
-              <option value="ADMIN">Administrador</option>
-              <option value="USER">Colaborador</option>
-            </select>
-          </div>
+
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
               Senha
@@ -211,13 +209,17 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
               {...register("password")}
               type="text"
               className="w-full outline-none border-[1px] border-gray-400 rounded-md pl-2 py-2"
+              placeholder="Digite a senha"
             />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[#005183] rounded-md text-white mt-4"
+            className="px-4 py-2 bg-[#14b7a1] rounded-md text-white mt-4"
           >
-            Editar Colaborador
+            Adicionar Colaborador
           </button>
         </form>
       </div>

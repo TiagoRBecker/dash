@@ -84,7 +84,7 @@ const Article = ({ params }: { params: { id: string } }) => {
   const filterSubCAtegoryByCategory = categories.filter(
     (name: any) => Number(name.id) === Number(selectCat)
   );
- console.log(errors)
+
   const onSubmit = handleSubmit(async (data: any) => {
     const formData = new FormData();
     formData.append("cover_file", avatar);

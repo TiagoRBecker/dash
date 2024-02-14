@@ -1,11 +1,23 @@
 "use client";
 import Header from "@/components/Header";
-import { Houses } from "@/components/types";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import Spinner from "@/components/Spinner";
-import { baseURL } from "@/components/utils/api";
 import Swal from "sweetalert2";
+import { useEffect, useState } from "react";
+import { baseURL } from "@/components/utils/api";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Progress,
+  Box,
+} from "@chakra-ui/react";
 
 const ImovesList = () => {
   useEffect(() => {
@@ -23,6 +35,7 @@ const ImovesList = () => {
     setLoading(false);
     return;
   };
+ 
   const deletMagazine = async (id: any, name: any) => {
     const del = await Swal.fire({
       position: "center",
@@ -76,60 +89,77 @@ const ImovesList = () => {
     
       {magazines && magazines.length > 0 ? (
         <>
-          <table className="w-full bg-white ">
-            <thead className="bg-[#14b7a1]  text-white text-sm">
-              <tr>
-                <th className="py-2 px-4 text-left"></th>
-                <th className="py-2 px-4 text-left">Nome</th>
-                <th className="py-2 px-4 text-left">Editora</th>
-                <th className="py-2 px-4 text-left">Volume </th>
-                <th className="py-2 px-4 text-left">Categoria </th>
-                <th className="py-2 px-4 text-left">Artigos</th>
-                <th className="py-2 px-4 text-left">Preço</th>
-                <th className="py-2 px-4 text-left">Ações </th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-400">
-              {magazines?.map((magazine: any, index: number) => (
-                <tr key={index} className="border-b-[1px] border-gray-300">
-                  <td className="py-2 px-4">
-                    <img
-                      src={magazine?.cover[0] as any}
-                      alt={magazine.name}
-                      className="w-20 h-20 object-contain"
-                    />
-                  </td>
-                  <td className="py-2 px-4">{magazine.name} </td>
-                  <td className="py-2 px-4"> {magazine.company}</td>
-                  <td className="py-2 px-4"> {magazine.volume}</td>
-                  <td className="py-2 px-4">{magazine.Category?.name} </td>
-                  <td className="py-2 px-4">{magazine.article.length} </td>
-                  <td className="py-2 px-4 ">
-                    {Number(magazine.price)?.toLocaleString("pt-br", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
-                  </td>
-                  <td className="py-2 px-4 ">
+        <TableContainer width={"90%"}>
+       
+        <Table variant="simple">
+          <TableCaption>Colaboradores</TableCaption>
+          <Thead background={"#14b7a1"}>
+            <Tr>
+              <Th color={"white"}>Image</Th>
+              <Th color={"white"}>Nome</Th>
+              <Th color={"white"}>Editora</Th>
+              <Th color={"white"}>Volume</Th>
+              <Th color={"white"}>Categorias</Th>
+              <Th color={"white"}>Artigos</Th>
+              <Th color={"white"}>Preço</Th>
+              <Th color={"white"}>Ações</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {magazines?.map((book:any, index) => (
+           
+                  <Tr>
+                  
+                    <Td>
+                      <img
+                        src={book.cover}
+                        alt={book.company}
+                        className="w-14 h-10 object-contain"
+                      />
+                    </Td>
+                    <Td>
+                      {book.name}
+                      </Td>
+                    <Td>
+                      {book?.company}
+                      </Td>
+                    <Td>
+                      {book.volume}
+                    </Td>
+                    <Td>
+                      {book?.Category?.name}
+                    </Td>
+                    <Td>
+                      {book?.article?.length}
+                    </Td>
+                    <Td>
+                      {Number(book?.price).toLocaleString("pt-br",{style:"currency",currency:"BRL"})}
+                    </Td>
+                    <Td>
                     <div className="w-full h-full ">
-                      <Link href={`/dashboard/revistas/${magazine.id}`}>
+                      <Link href={`/dashboard/revistas/${book.id}`}>
                         <button className="text-[#005183]">Editar</button>
                       </Link>
                     </div>
-
                     <button
                       className="text-red-500"
                       onClick={() => {
-                        deletMagazine(magazine.id, magazine?.name);
+                        deletMagazine(book.id, book?.name);
                       }}
                     >
                       Deletar
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </Td>
+                    
+                    
+                   
+                  </Tr>
+            
+            ))}
+          </Tbody>
+        </Table>
+         </TableContainer>
+        
           <div className="w-full flex items-center justify-center mt-4">
             <Link href={`/dashboard/revistas/cadastrar`}>
               <button className="px-4 py-2 bg-[#14b7a1]  rounded-md text-white">
