@@ -62,16 +62,16 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   }
   return (
     <>
-      <section className="w-full h-full  py ">
+      <section className="w-full h-full">
         
         <div className="w-full h-full flex">
-        <aside className="w-[8%] flex  justify-center py-1 px-1">
+        <aside className="w-[8%] flex  justify-center py-1 px-1 fixed">
            
         {PlacementExample()}
           
           </aside>
 
-          <main className=" w-[91%] min-h-screen  mx-auto  ">
+          <main className=" w-full min-h-screen  mx-auto  ">
             {children}
           </main>
         </div>

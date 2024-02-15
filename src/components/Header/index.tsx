@@ -12,7 +12,7 @@ const Header = ({search,value,onChange,handleMenu}:any) => {
     const { data:session} = useSession()
    
   return (
-    <div className="w-full h-16 flex items-center justify-between px-6 py-2 bg-white ">
+    <div className="w-[92%] h-16 flex items-center justify-between px-6 py-2 bg-white ">
        
       <div className="w-full flex items-center gap-2">
         <input
@@ -41,7 +41,7 @@ const Header = ({search,value,onChange,handleMenu}:any) => {
         </div>
         
       </div>
-      <div className="w-[30%] h-full flex items-center gap-6">
+      <div className="w-[30%] h-full flex items-center justify-end gap-6">
         <div className='flex items-center gap-3'>
           <p>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -57,7 +57,7 @@ const Header = ({search,value,onChange,handleMenu}:any) => {
           </p>
         </div>
       <Avatar name={session?.user?.name as any } src={ '/user.png'}  />
-      <p>{session?.user?.name as any}</p>
+  
       </div>
      
     </div>

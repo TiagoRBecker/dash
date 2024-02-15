@@ -1,6 +1,6 @@
 "use client";
 import Spinner from "@/components/Spinner";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import CategoriesApi, { baseURL } from "@/components/utils/api";
@@ -21,6 +21,7 @@ const Article = () => {
     handleSubmit,
     reset,
     getValues,
+    setValue,
     watch,
 
     formState: { errors },
@@ -35,6 +36,8 @@ const Article = () => {
   const [url, setUrl] = useState("");
   const [errorPicture, setErrorPicture] = useState(false);
 
+
+   //Preview Imagem
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
     const files = e.target.files as any;
@@ -45,6 +48,7 @@ const Article = () => {
 
     return;
   };
+  //Preview Pdf
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files as any;
     if (files) {
@@ -57,40 +61,43 @@ const Article = () => {
   const clearImage = () => {
     setAvatar("") as any;
   };
+  //Busca no banco de dados as categorias junto com as revistas
   const getCat = async () => {
     const categories = await CategoriesApi.getCategories();
     setCategories(categories);
     return;
   };
+  // Filtra as revistas por categorias
   const filterCategory = categories.filter(
     (name: any) => Number(name.id) === Number(selectCat)
   );
-   console.log(filterCategory)
+  // Evia os dados para backend
   const onSubmit = handleSubmit(async (data: any) => {
-     console.log("entro aqui")
+  
     if (avatar === "" || url === "") {
       setErrorPicture(true);
+     
       return;
     }
 
     const formData = new FormData();
     formData.append("cover_file", avatar);
     formData.append("pdf_file", url);
-
+    // Adiciona dentro do formdata os valores do data do react hook forms
     for (const key in data) {
       formData.append(key, data[key] as any);
     }
-    const del = await Swal.fire({
+    const add = await Swal.fire({
       position: "center",
       title: "Tem certeza?",
-      text: `Você adicionar um novo  Artigo?`,
+      text: `Você deseja adicionar um novo  Artigo?`,
       showCancelButton: true,
       cancelButtonText: "Cancelar",
       cancelButtonColor: "#d55",
       confirmButtonText: "Adicionar",
       confirmButtonColor: "#00FF00",
     });
-    if (del.isConfirmed) {
+    if (add.isConfirmed) {
       try {
         //deleta a categoria e apos exibe  um modal Categoria deletada com sucesso!
 
@@ -123,17 +130,18 @@ const Article = () => {
   });
 
   return (
-    <section className="w-full h-full px-4 py-2 bg-slate-300">
-      <h1 className="text-xl text-gray-400 uppercase py-4">Adicionar Artigo</h1>
+    <section className="w-full h-full flex items-center justify-center ">
+     
       <form
-        className="w-full h-full  rounded-md bg-white py-2 px-2 "
+        className="w-[80%] mx-auto   rounded-md  py-2 px-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] "
         encType="multipart/form-data"
         onSubmit={onSubmit}
       >
-        <div className="flex">
-          <div className="w-[65%] flex flex-col gap-3  px-4 py-4">
+         <h1 className="text-xl text-center text-gray-400 uppercase py-4">Criar Artigo </h1>
+        <div className="w-full md:flex md:flex-row">
+          <div className="w-full md:w-[65%] flex flex-col gap-3  px-4 py-4">
           <div className="flex flex-col gap-1">
-              <label htmlFor="">Autor</label>
+              <label htmlFor="">Autor Artigo</label>
               <input
                 {...register("author")}
                 type="text"
@@ -141,8 +149,11 @@ const Article = () => {
                 placeholder="Autor"
               />
             </div>
+            {errors.author && (
+              <p className="text-red-400 text-sm">{errors.author.message}</p>
+            )}
             <div className="flex flex-col gap-1">
-              <label htmlFor="">Titulo</label>
+              <label htmlFor="">Nome Artigo</label>
               <input
                 {...register("name")}
                 type="text"
@@ -154,7 +165,7 @@ const Article = () => {
               <p className="text-red-400 text-sm">{errors.name.message}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label htmlFor="">Volume</label>
+              <label htmlFor="">Volume Artigo</label>
               <input
                 {...register("volume")}
                 type="text"
@@ -166,7 +177,7 @@ const Article = () => {
               <p className="text-red-400 text-sm">{errors.volume.message}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label htmlFor="">Editora</label>
+              <label htmlFor="">Editora do Artigo</label>
               <input
                 {...register("company")}
                 type="text"
@@ -181,7 +192,11 @@ const Article = () => {
               <label htmlFor="">Preço</label>
               <input
                 {...register("price")}
-                type="text"
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setValue("price", Number(value)); // Define o valor como número ou string vazia se não for um número válido
+                }}
+                type="number"
                 className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                 placeholder="Preço"
               />
@@ -191,23 +206,11 @@ const Article = () => {
                 {errors.price.message as any}
               </p>
             )}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="">Descriçao</label>
-              <textarea
-                {...register("description")}
-                className="w-full h-24 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
-                placeholder="Descriçao"
-              />
-            </div>
-            {errors.description && (
-              <p className="text-red-400 text-sm">
-                {errors.description.message}
-              </p>
-            )}
-            <div className="w-full  flex items-center justify-between">
-              <p>Categoria</p>
+           
+            <div className="w-full flex-col  md:flex md:flex-row items-center justify-between">
+              <p>Categoria do Artigo</p>
               <select
-                className="w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                className="w-full md:w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                 {...register("categoryId")}
               >
                 <option value="">Selecionar</option>
@@ -223,29 +226,26 @@ const Article = () => {
                 {errors.categoryId.message as any}
               </p>
             )}
-           
-             {filterCategory && (
+            {filterCategory && (
               <>
-                <div className="w-full  flex items-center justify-between">
-                  <p>Revistas</p>
+                <div className="w-full flex-col  md:flex md:flex-row items-center justify-between">
+                  <p>Relacionar Revista ao artigo </p>
 
                   <select
                     {...register("magazineId")}
-                    className="w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                    className="w-full md:w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                   >
-                     <option value="">Selecionar</option>
                     {filterCategory.map(
                       (magazine: any, index: number) => (
-                        <>
-                          {magazine.magazine.map(
-                            (name: any, index: number) => (
-                              <option value={name.id}>{name.name}</option>
-                            )
-                          )}
-                        </>
+                        <React.Fragment key={index}>
+                          {magazine.magazine.map((name: any, index: number) => (
+                            <option key={index} value={name.id}>{name.name}</option>
+                          ))}
+                      </React.Fragment>
                       )
                     )}
                   </select>
+                  
                 </div>
 
                 {errors.magazineId && (
@@ -253,12 +253,13 @@ const Article = () => {
                     {errors.magazineId.message as any}
                   </p>
                 )}
+                
               </>
             )}
-             <div className="w-full  flex items-center justify-between">
-              <p>Categoria do Artigo</p>
+            <div className="w-full flex-col  md:flex md:flex-row items-center justify-between">
+              <p>Status do Artigo</p>
               <select
-                className="w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                className="w-full md:w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                 {...register("status")}
               >
                 <option value="free">Gratuito</option>
@@ -270,7 +271,9 @@ const Article = () => {
             </div>
           </div>
 
-          <div className="w-[35%] h-full  flex flex-col gap-3 px-4 py-4">
+          <div className="w-full md:w-[35%] h-full flex flex-col   gap-3 px-4 py-4">
+          <div className="flex gap-3">
+
             <div className="w-full h-full">
               <div className="w-full  h-full flex flex-col gap-6 items-center justify-center">
                 <div className=" w-full h-52 bg-[#14b7a1] rounded-md flex items-center justify-center">
@@ -370,11 +373,11 @@ const Article = () => {
                       <input
                         type="file"
                         accept=".pdf"
-                        id="pdfInput"
+                        id="pdf_file"
                         hidden
                         onChange={onChange}
                       />
-                      <label htmlFor="pdfInput" className="cursor-pointer">
+                      <label htmlFor="pdf_file" className="cursor-pointer">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -396,13 +399,29 @@ const Article = () => {
               </Worker>
             </div>
           </div>
+          {errorPicture && <p className="text-red-600 text-sm">Adicione os itens PDF e Imagem</p>}
+          <div className="flex flex-col gap-1">
+              <label htmlFor="">Descriçao</label>
+              <textarea
+                {...register("description")}
+                className="w-full h-24 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                placeholder="Descriçao"
+              />
+            </div>
+            {errors.description && (
+              <p className="text-red-400 text-sm">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+          
         </div>
         <div className="w-full  rounded-md flex items-center justify-center">
           <button
             className="w-40 py-2  bg-[#14b7a1] rounded-md  text-white "
             type="submit"
           >
-            Adicionar Artigo
+            Criar Artigo
           </button>
         </div>
       </form>

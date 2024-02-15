@@ -3,15 +3,15 @@ import { User, user } from "@/components/utils/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import {getCookies} from "@/components/utils/cookies";
 import { baseURL } from "@/components/utils/api";
+import Swal from "sweetalert2";
 import Spinner from "@/components/Spinner";
+
 const EditEmploye = ({ params }: { params: { slug: string } }) => {
   const [avatar, setAvatar] = useState<string>("");
  const [newAvatar,setNewAvatar] = useState<any>("")
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const slug = params.slug;
   const router = useRouter();
   const {
@@ -200,7 +200,8 @@ const EditEmploye = ({ params }: { params: { slug: string } }) => {
               <p className="text-sm text-red-500">{errors.phone.message}</p>
             )}
           </div>
-
+          
+  
           <div className="flex flex-col w-full">
             <label htmlFor="" className="text-lg text-gray-400">
               Senha
