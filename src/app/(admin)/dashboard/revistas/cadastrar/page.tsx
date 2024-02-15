@@ -271,6 +271,7 @@ const Magazine = () => {
                   ))}
                 </select>
                 <button
+                  type="button"
                   className="w-[50px]  bg-[#14b7a1] h-7 flex items-center justify-center text-white"
                   onClick={addEmployees}
                 >
