@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Spinner from "@/components/Spinner";
 import { Categories } from "@/components/types";
 import { baseURL } from "@/components/utils/api";
+import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -80,7 +81,7 @@ const Config = () => {
     )
   }
   return (
-    <section className="w-full h-full flex py-10  flex-col items-center px-4 gap-4">
+    <section className="w-full h-full flex   flex-col items-center px-4 gap-4">
       <Header search={searchData} />
       {categories.length === 0 ? (
         <div className="w-full h-screen flex flex-col items-center justify-center gap-4">
@@ -95,38 +96,61 @@ const Config = () => {
         </div>
       ) : (
         <div className="w-full">
-          <table className="w-full bg-white ">
-            <thead className="bg-[#14b7a1]  text-white">
-              <tr>
-                <th className="py-2 px-4 text-left">Categorias</th>
-                <th className="py-2 px-4 text-left">Revistas</th>
-                <th className="py-2 px-4 text-left">Artigos</th>
-                <th className="py-2 px-4 text-left">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-400">
-              {categories?.map((category: any, index: number) => (
-                <tr key={index} className="border-b-[1px] border-gray-300 ">
-                  <td className="py-2 px-4">{category.name}</td>
-                  <td className="py-2 px-4">{category.magazine.length}</td>
-                  <td className="py-2 px-4">{category.article.length}</td>
+        
+          <TableContainer width={"100%"}>
+       
+       <Table variant="simple">
+         <TableCaption>Categorias Cadastradas</TableCaption>
+         <Thead background={"#14b7a1"}>
+           <Tr>
+             <Th color={"white"}>Categorias</Th>
+             <Th color={"white"}>Revistas</Th>
+             <Th color={"white"}>Artigos</Th>
+             <Th color={"white"}>Ações</Th>
+           </Tr>
+         </Thead>
+         <Tbody>
+           {categories?.map((cat:any, index:any) => (
+          
+                 <Tr>
+                 
+                 
+                   <Td>
+                     {cat.name}
+                     </Td>
+                   <Td>
+                     {cat.magazine.length}
+                     </Td>
+                   <Td>
+                     {cat.article.length}
+                   </Td>
                   
-
-                  <td className="py-2 px-4 flex gap-2 ">
-                    <Link href={`/dashboard/categorias/${category.id}`}>
-                      <button className="text-[#005183]">Editar</button>
-                    </Link>
-                    <button
-                      onClick={() => deletCat(category.id, category.name)}
-                      className="text-red-500"
-                    >
-                      Deletar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  
+                   
+                   <Td>
+                   <div className="w-full h-full ">
+                     <Link href={`/dashboard/categorias/${cat.id}`}>
+                       <button className="text-[#005183]">Editar</button>
+                     </Link>
+                   </div>
+                   <button
+                     className="text-red-500"
+                     onClick={() => {
+                       deletCat(cat.id, cat?.name);
+                     }}
+                   >
+                     Deletar
+                   </button>
+                   </Td>
+                   
+                   
+                  
+                 </Tr>
+           
+           ))}
+         </Tbody>
+       </Table>
+        </TableContainer>
           <div className="w-full flex items-center justify-center mt-4">
             <Link href={"/dashboard/categorias/adicionar_categoria"}>
               <button className="px-4 py-2 bg-[#14b7a1]  rounded-md text-white">

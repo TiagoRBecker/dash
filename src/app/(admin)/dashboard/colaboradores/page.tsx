@@ -94,7 +94,7 @@ const Colaborades = () => {
       }
     }
   };
- console.log(employees)
+
   if(loading){
     return(
       <section className="w-full h-screen flex items-center justify-center">

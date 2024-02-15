@@ -92,7 +92,7 @@ const ImovesList = () => {
         <TableContainer width={"90%"}>
        
         <Table variant="simple">
-          <TableCaption>Colaboradores</TableCaption>
+          <TableCaption>Revistas Cadastradas</TableCaption>
           <Thead background={"#14b7a1"}>
             <Tr>
               <Th color={"white"}>Image</Th>

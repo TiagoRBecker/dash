@@ -22,7 +22,7 @@ const Header = ({search,value,onChange,handleMenu}:any) => {
           className="w-2/3 h-9 outline-none border-[1px] border-gray-300 rounded-md pl-4 px-4 "
           placeholder={"Filtar nome"}
         />
-        <div className="bg-[#005183] w-12 h-9 rounded-md flex items-center justify-center" onClick={search}>
+        <div className="bg-[#14b7a1] w-12 h-9 rounded-md flex items-center justify-center" onClick={search}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

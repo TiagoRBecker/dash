@@ -258,7 +258,7 @@ export const menuLinks = [
  },
  { 
   id:4,
-  name:"DVL",
+  name:"Financeiro",
   icon:   (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -277,6 +277,7 @@ export const menuLinks = [
   ),
    links:[
     {name:"Exibir DVL", path:"/dashboard/dvl"},
+    {name:"Colaborades", path:"/dashboard/financeiro/colaboradores"},
     
  
    ]
