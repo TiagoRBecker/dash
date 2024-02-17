@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import CategoriesApi, { baseURL } from "@/components/utils/api";
-import { optional } from "zod";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {  Magazine,  magazine } from "@/components/utils/validation";
+import { Magazine, magazine } from "@/components/utils/validation";
 import { HStack, Tag, TagCloseButton, TagLabel } from "@chakra-ui/react";
+import MagazineController from "@/hooks/magzine"; // Hook responsavel por toda a logica do edit
 
 const EditMagazine = ({ params }: { params: { id: string } }) => {
   const {
@@ -33,99 +33,34 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
   const [employees, setEmployees] = useState([]);
   const [employeesID, setEmployeesID] = useState<any>([]);
   const [errorPicture, setErrorPicture] = useState(false);
-  const name  = getValues("name")  
+  const [employeesMagazine, setEmployeesMagazine] = useState([]);
+  const [selectEmployee, setSelectEmployee] = useState("1");
+  const name = getValues("name");
   const id = watch("employeeId");
   const router = useRouter();
   const slug = params.id;
   useEffect(() => {
-    getCategories()
-    getByMagazine();
-    getEmployee()
-   
+    MagazineController.getCategories(setCategories)
+      .then((emp) => emp)
+      .catch((error) => console.log(error));
+    MagazineController.getEmployees(setEmployees)
+      .then((emp) => emp)
+      .catch((error) => console.log(error));
+    MagazineController.getByMagazine(
+      slug,
+      setValue,
+      setEmployeesMagazine,
+      setLoading
+    )
+      .then((emp) => emp)
+      .catch((error) => console.log(error));
   }, []);
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const files = e.target.files as any;
-    if (files) {
-      // Se um arquivo foi fornecido, atualize a URL
-      setAvatar(files[0]);
-      setLoading(false);
-    }
 
-    return;
-  };
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files as any;
-    if (files) {
-      // Se um arquivo foi fornecido, atualize a URL
-      setUrl(files[0]);
-      setLoading(false);
-    }
-  };
-  const clear = () => {
-    setUrl("");
-  };
-  const clearImage = () => {
-    setAvatar("") as any;
-  };
-  
-
-  const getByMagazine = async () => {
-    const getArticle = await fetch(`${baseURL}/magazine/${slug}`, {
-      method: "GET",
-    });
-    const response = await getArticle.json();
-    Object.keys(response).forEach((key: any) => {
-      setValue(key, response[key] as any);
-    });
-  
-    setLoading(false)
-    return
-  };
-  const getCategories = async ()=>{
-    const getCat = await fetch(`${baseURL}/categories`,{
-      method:"GET"
-    })
-    const response = await getCat.json()
-    setCategories(response)
-  }
- 
-  const getEmployee = async () => {
-    const employee = await fetch(`${baseURL}/employees`, {
-      method: "GET",
-    });
-    const response = await employee.json();
-    setEmployees(response);
-    return;
-  };
-  const addEmployees = () => {
-    const filteredEmployee = employees.find(
-      (employee: any) => employee.id === Number(id)
-    ) as any;
-    if (filteredEmployee) {
-      const checkIDArray = employeesID.some(
-        (emp: any) => emp.id === filteredEmployee.id
-      );
-      if (!checkIDArray) {
-        setEmployeesID((prev: any) => [...prev, filteredEmployee]);
-      }
-    }
-  };
-  const handleRemoveEmployee = (id: any) => {
-    setEmployeesID((prev: any) => {
-      const pos = prev.findIndex((item: any) => item.id === Number(id));
-      const newArrayEmployee = prev.filter(
-        (value: any, index: any) => index !== pos
-      );
-
-      return newArrayEmployee;
-    });
-  };
   const onSubmit = handleSubmit(async (data: any) => {
     const formData = new FormData();
     formData.append("cover_file", avatar);
     formData.append("pdf_file", url);
-
+    formData.append("employes", JSON.stringify(employeesID));
     for (const key in data) {
       formData.append(key, data[key] as any);
     }
@@ -143,11 +78,14 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
       try {
         //deleta a categoria e apos exibe  um modal Categoria deletada com sucesso!
 
-        const updateArticle = await fetch(`${baseURL}/update-magazine/${slug}`, {
-          method: "POST",
+        const updateArticle = await fetch(
+          `${baseURL}/update-magazine/${slug}`,
+          {
+            method: "POST",
 
-          body: formData,
-        });
+            body: formData,
+          }
+        );
 
         if (updateArticle.status === 200) {
           await Swal.fire(
@@ -155,7 +93,7 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
             "Clica no botão para continuar!",
             "success"
           );
-          router.push("/dashboard/revistas")
+          router.push("/dashboard/revistas");
 
           return;
         }
@@ -171,16 +109,14 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
     }
   });
   //Loading pagina
-  if(loading){
-    return(
+  if (loading) {
+    return (
       <section className="w-full h-screen flex items-center justify-center">
-      <Spinner/>
-     </section>
-    )
-
-   
+        <Spinner />
+      </section>
+    );
   }
- 
+
   return (
     <section className="w-full h-full flex items-center justify-center  ">
       <form
@@ -295,9 +231,16 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                   ))}
                 </select>
                 <button
-                 type="button"
+                  type="button"
                   className="w-[50px]  bg-[#14b7a1] h-7 flex items-center justify-center text-white"
-                  onClick={addEmployees}
+                  onClick={() => {
+                    MagazineController.addEmployee(
+                      employees,
+                      employeesID,
+                      id,
+                      setEmployeesID
+                    );
+                  }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -328,12 +271,66 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                   >
                     <TagLabel>{size.name} </TagLabel>
                     <TagCloseButton
-                      onClick={() => handleRemoveEmployee(size.id)}
+                      onClick={() =>
+                        MagazineController.handleRemoveEmployee(
+                          size.id,
+                          setEmployeesID
+                        )
+                      }
                     />
                   </Tag>
                 ))}
               </HStack>
             </div>
+            {employeesMagazine && employeesMagazine.length > 0 && (
+              <div className="w-full  flex  gap-2 items-center justify-between">
+                <p className="text-left w-full">
+                  Remover colaborador da Revista
+                </p>
+                <div className="flex w-full gap-2">
+                  <select
+                    className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                    value={selectEmployee}
+                    onChange={(e) => setSelectEmployee(e.target.value)}
+                  >
+                    <option value="">Selecionar</option>
+                    {employeesMagazine.map((employee: any, index: any) => (
+                      <>
+                        <option key={index} value={employee.id}>
+                          {employee.name}
+                        </option>
+                      </>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="w-[50px]  bg-red-600 h-7 flex items-center justify-center text-white"
+                    onClick={() => {
+                      MagazineController.removeEmployee(
+                        slug,
+                        selectEmployee,
+                        MagazineController?.getByMagazine
+                      );
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="w-full md:w-[35%] h-full flex flex-col   gap-3 px-4 py-4">
@@ -341,7 +338,14 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
               <div className="w-full h-full">
                 <div className="w-full  h-full flex flex-col gap-6 items-center justify-center">
                   <div className=" w-full h-52 bg-[#14b7a1] rounded-md flex items-center justify-center">
-                    <input type="file" hidden id="file" onChange={upload} />
+                    <input
+                      type="file"
+                      hidden
+                      id="file"
+                      onChange={(e) => {
+                        MagazineController.upload(e, setLoading, setAvatar);
+                      }}
+                    />
                     {loading ? (
                       <Spinner />
                     ) : (
@@ -354,7 +358,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                               className="w-full h-52 px-2 py-2 object-fill"
                             />
                             <button
-                              onClick={clearImage}
+                              onClick={() => {
+                                MagazineController.clearAvatar(setAvatar);
+                              }}
                               className="absolute top-2 right-4"
                             >
                               <svg
@@ -413,7 +419,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                       <div className="w-full h-52 relative">
                         <Viewer fileUrl={URL.createObjectURL(url as any)} />
                         <button
-                          onClick={clear}
+                          onClick={() => {
+                            MagazineController.clearPdf(setUrl);
+                          }}
                           className="absolute top-2 right-4"
                         >
                           <svg
@@ -439,7 +447,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                           accept=".pdf"
                           id="pdf_file"
                           hidden
-                          onChange={onChange}
+                          onChange={(e) => {
+                            MagazineController.uploadPdf(e, setUrl, setLoading);
+                          }}
                         />
                         <label htmlFor="pdf_file" className="cursor-pointer">
                           <svg

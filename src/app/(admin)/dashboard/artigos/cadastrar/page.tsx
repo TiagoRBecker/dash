@@ -3,24 +3,18 @@ import Spinner from "@/components/Spinner";
 import React, { useState, useEffect } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import CategoriesApi, { baseURL } from "@/components/utils/api";
-import { optional } from "zod";
+import  { baseURL} from "@/components/utils/api";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Article, article } from "@/components/utils/validation";
+import ArticleController from "@/hooks/article";
 
 const Article = () => {
-  const router = useRouter();
-  useEffect(() => {
-    getCat();
-  }, []);
   const {
     register,
     handleSubmit,
-    reset,
-    getValues,
     setValue,
     watch,
 
@@ -31,46 +25,18 @@ const Article = () => {
   });
   const selectCat = watch("categoryId");
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
   const [errorPicture, setErrorPicture] = useState(false);
+  const router = useRouter();
+  useEffect(() => {
+    ArticleController.getCategories(setCategories,setLoading).then((cat)=>cat).catch((error)=>console.log(error))
+  }, []);
+ 
 
-
-   //Preview Imagem
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const files = e.target.files as any;
-    if (files) {
-      setAvatar(files[0]);
-      setLoading(false);
-    }
-
-    return;
-  };
-  //Preview Pdf
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files as any;
-    if (files) {
-      setUrl(files[0]);
-    }
-  };
-  const clear = () => {
-    setUrl("");
-  };
-  const clearImage = () => {
-    setAvatar("") as any;
-  };
-  //Busca no banco de dados as categorias junto com as revistas
-  const getCat = async () => {
-    const categories = await CategoriesApi.getCategories();
-    setCategories(categories);
-    return;
-  };
   // Filtra as revistas por categorias
-  const filterCategory = categories.filter(
-    (name: any) => Number(name.id) === Number(selectCat)
-  );
+  const filterCategory =  ArticleController.filterCategory(categories,selectCat)
   // Evia os dados para backend
   const onSubmit = handleSubmit(async (data: any) => {
   
@@ -128,7 +94,13 @@ const Article = () => {
       }
     }
   });
-
+ if(loading){
+  return(
+    <section className="w-full h-screen flex items-center justify-center">
+      <Spinner/>
+    </section>
+  )
+ }
   return (
     <section className="w-full h-full flex items-center justify-center ">
      
@@ -277,7 +249,7 @@ const Article = () => {
             <div className="w-full h-full">
               <div className="w-full  h-full flex flex-col gap-6 items-center justify-center">
                 <div className=" w-full h-52 bg-[#14b7a1] rounded-md flex items-center justify-center">
-                  <input type="file" hidden id="file" onChange={upload} />
+                  <input type="file" hidden id="file" onChange={(e)=>{ArticleController.upload(e,setLoading,setAvatar,)}} />
                   {loading ? (
                     <Spinner />
                   ) : (
@@ -290,7 +262,7 @@ const Article = () => {
                             className="w-full h-52 px-2 py-2 object-fill"
                           />
                           <button
-                            onClick={clearImage}
+                            onClick={()=>{ArticleController.clearAvatar(setAvatar)}}
                             className="absolute top-2 right-4"
                           >
                             <svg
@@ -349,7 +321,7 @@ const Article = () => {
                     <div className="w-full h-52 relative">
                       <Viewer fileUrl={URL.createObjectURL(url as any)} />
                       <button
-                        onClick={clear}
+                        onClick={()=>{ArticleController.clearPdf(setUrl)}}
                         className="absolute top-2 right-4"
                       >
                         <svg
@@ -375,7 +347,7 @@ const Article = () => {
                         accept=".pdf"
                         id="pdf_file"
                         hidden
-                        onChange={onChange}
+                        onChange={(e)=>ArticleController.uploadPdf(e,setUrl,setLoading)}
                       />
                       <label htmlFor="pdf_file" className="cursor-pointer">
                         <svg

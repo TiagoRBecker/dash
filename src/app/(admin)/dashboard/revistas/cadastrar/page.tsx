@@ -3,19 +3,23 @@ import Spinner from "@/components/Spinner";
 import { useState, useEffect } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import CategoriesApi, { baseURL } from "@/components/utils/api";
+import  { baseURL } from "@/components/utils/api";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Magazine, magazine } from "@/components/utils/validation";
 import { HStack, Tag, TagCloseButton, TagLabel } from "@chakra-ui/react";
-
+import MagazineController from "@/hooks/magzine"; //Hook responsavel pela logica do cadastrar
 const Magazine = () => {
   const router = useRouter();
   useEffect(() => {
-    getEmployee();
-    getCat();
+    MagazineController.getCategories(setCategories)
+      .then((emp) => emp)
+      .catch((error) => console.log(error));
+    MagazineController.getEmployees(setEmployees)
+      .then((emp) => emp)
+      .catch((error) => console.log(error));
   }, []);
   const {
     register,
@@ -37,68 +41,6 @@ const Magazine = () => {
   const [avatar, setAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
   const [errorPicture, setErrorPicture] = useState(false);
-
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    const files = e.target.files as any;
-    if (files) {
-      setAvatar(files[0]);
-      setLoading(false);
-    }
-
-    return;
-  };
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files as any;
-    if (files) {
-      setUrl(files[0]);
-    }
-  };
-  const clear = () => {
-    setUrl("");
-  };
-  const clearImage = () => {
-    setAvatar("") as any;
-  };
-  const getCat = async () => {
-    const categories = await fetch(`${baseURL}/categories`, {
-      method: "GET",
-    });
-    const response = await categories.json();
-    setCategories(response);
-    return;
-  };
-  const getEmployee = async () => {
-    const employee = await fetch(`${baseURL}/employees`, {
-      method: "GET",
-    });
-    const response = await employee.json();
-    setEmployees(response);
-    return;
-  };
-  const addEmployees = () => {
-    const filteredEmployee = employees.find(
-      (employee: any) => employee.id === Number(id)
-    ) as any;
-    if (filteredEmployee) {
-      const checkIDArray = employeesID.some(
-        (emp: any) => emp.id === filteredEmployee.id
-      );
-      if (!checkIDArray) {
-        setEmployeesID((prev: any) => [...prev, filteredEmployee]);
-      }
-    }
-  };
-  const handleRemoveEmployee = (id: any) => {
-    setEmployeesID((prev: any) => {
-      const pos = prev.findIndex((item: any) => item.id === Number(id));
-      const newArrayEmployee = prev.filter(
-        (value: any, index: any) => index !== pos
-      );
-
-      return newArrayEmployee;
-    });
-  };
 
   const onSubmit = handleSubmit(async (data: any) => {
     if (avatar === "" || url === "") {
@@ -273,7 +215,14 @@ const Magazine = () => {
                 <button
                   type="button"
                   className="w-[50px]  bg-[#14b7a1] h-7 flex items-center justify-center text-white"
-                  onClick={addEmployees}
+                  onClick={() => {
+                    MagazineController.addEmployee(
+                      employees,
+                      employeesID,
+                      id,
+                      setEmployeesID
+                    );
+                  }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -304,7 +253,12 @@ const Magazine = () => {
                   >
                     <TagLabel>{size.name} </TagLabel>
                     <TagCloseButton
-                      onClick={() => handleRemoveEmployee(size.id)}
+                      onClick={() =>
+                        MagazineController.handleRemoveEmployee(
+                          size.id,
+                          setEmployeesID
+                        )
+                      }
                     />
                   </Tag>
                 ))}
@@ -317,7 +271,14 @@ const Magazine = () => {
               <div className="w-full h-full">
                 <div className="w-full  h-full flex flex-col gap-6 items-center justify-center">
                   <div className=" w-full h-52 bg-[#14b7a1] rounded-md flex items-center justify-center">
-                    <input type="file" hidden id="file" onChange={upload} />
+                    <input
+                      type="file"
+                      hidden
+                      id="file"
+                      onChange={(e) => {
+                        MagazineController.upload(e, setLoading, setAvatar);
+                      }}
+                    />
                     {loading ? (
                       <Spinner />
                     ) : (
@@ -330,7 +291,9 @@ const Magazine = () => {
                               className="w-full h-52 px-2 py-2 object-fill"
                             />
                             <button
-                              onClick={clearImage}
+                              onClick={() => {
+                                MagazineController.clearAvatar(setAvatar);
+                              }}
                               className="absolute top-2 right-4"
                             >
                               <svg
@@ -389,7 +352,9 @@ const Magazine = () => {
                       <div className="w-full h-52 relative">
                         <Viewer fileUrl={URL.createObjectURL(url as any)} />
                         <button
-                          onClick={clear}
+                          onClick={() => {
+                            MagazineController.clearPdf(setUrl);
+                          }}
                           className="absolute top-2 right-4"
                         >
                           <svg
@@ -415,7 +380,9 @@ const Magazine = () => {
                           accept=".pdf"
                           id="pdf_file"
                           hidden
-                          onChange={onChange}
+                          onChange={(e) => {
+                            MagazineController.uploadPdf(e, setUrl, setLoading);
+                          }}
                         />
                         <label htmlFor="pdf_file" className="cursor-pointer">
                           <svg

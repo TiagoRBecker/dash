@@ -133,7 +133,7 @@ const ImovesList = () => {
                       {book?.article?.length}
                     </Td>
                     <Td>
-                      {Number(book?.price).toLocaleString("pt-br",{style:"currency",currency:"BRL"})}
+                      {Number(book?.price / 100).toLocaleString("pt-br",{style:"currency",currency:"BRL"})}
                     </Td>
                     <Td>
                     <div className="w-full h-full ">

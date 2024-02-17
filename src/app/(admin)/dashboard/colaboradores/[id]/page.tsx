@@ -8,11 +8,11 @@ import { baseURL } from "@/components/utils/api";
 import Swal from "sweetalert2";
 import Spinner from "@/components/Spinner";
 
-const EditEmploye = ({ params }: { params: { slug: string } }) => {
+const EditEmploye = ({ params }: { params: { id: string } }) => {
   const [avatar, setAvatar] = useState<string>("");
  const [newAvatar,setNewAvatar] = useState<any>("")
   const [loading, setLoading] = useState(true);
-  const slug = params.slug;
+  const slug = params.id;
   const router = useRouter();
   const {
     register,

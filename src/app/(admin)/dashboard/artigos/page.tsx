@@ -2,6 +2,7 @@
 import Header from "@/components/Header";
 import Spinner from "@/components/Spinner";
 import { baseURL } from "@/components/utils/api";
+import ArticleController from "@/hooks/article";
 import {
   Table,
   TableCaption,
@@ -20,26 +21,11 @@ const ArticleHome = () => {
   const [articles, setArticles] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    getArticle();
+    ArticleController.getArticles(setArticles,setLoading).then((article)=> article).catch((error)=>console.log(error))
   }, []);
 
   const searchData = () => {};
-  const getArticle = async () => {
-    const get = await fetch(`${baseURL}/articles`, {
-      method: "GET",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (get.status === 200) {
-      const response = await get.json();
-      setArticles(response);
-      setLoading(false);
-      return;
-    }
-  };
+  
 
   const deletArticle = async (id: any, name: any) => {
     const del = await Swal.fire({
@@ -68,7 +54,7 @@ const ArticleHome = () => {
           "Clica no botão para continuar!",
           "success"
         );
-        await getArticle();
+        await ArticleController.getArticles(setLoading,setArticles);
       } catch (error) {
         console.log(error);
         //Exibe o modal de erro caso exista um
