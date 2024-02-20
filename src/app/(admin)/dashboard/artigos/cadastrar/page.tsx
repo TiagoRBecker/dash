@@ -141,6 +141,18 @@ const Article = () => {
             {errors.name && (
               <p className="text-red-400 text-sm">{errors.name.message}</p>
             )}
+             <div className="flex flex-col gap-1">
+              <label htmlFor="">Capa Revista</label>
+              <input
+                {...register("capa_name")}
+                type="text"
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                placeholder="Título"
+              />
+            </div>
+            {errors.capa_name && (
+              <p className="text-red-400 text-sm">{errors.capa_name.message}</p>
+            )}
             <div className="flex flex-col gap-1">
               <label htmlFor="">Volume Artigo</label>
               <input
@@ -164,24 +176,6 @@ const Article = () => {
             </div>
             {errors.company && (
               <p className="text-red-400 text-sm">{errors.company.message}</p>
-            )}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="">Preço</label>
-              <input
-                {...register("price")}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  setValue("price", Number(value)); // Define o valor como número ou string vazia se não for um número válido
-                }}
-                type="number"
-                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
-                placeholder="Preço"
-              />
-            </div>
-            {errors.price && (
-              <p className="text-red-400 text-sm">
-                {errors.price.message as any}
-              </p>
             )}
 
             <div className="w-full flex-col  md:flex md:flex-row items-center justify-between">

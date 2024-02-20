@@ -3,8 +3,7 @@ import Spinner from "@/components/Spinner";
 import React, { useState, useEffect, useRef } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import CategoriesApi, { baseURL } from "@/components/utils/api";
-import { optional } from "zod";
+import { baseURL } from "@/components/utils/api";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
@@ -33,7 +32,13 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
     ArticleController.getCategories(setCategories, setLoading)
       .then((cat) => cat)
       .catch((error) => console.log(error));
-    ArticleController.getArticleById(slug, setValue, setLoading,setAvatar,setUrl)
+    ArticleController.getArticleById(
+      slug,
+      setValue,
+      setLoading,
+      setAvatar,
+      setUrl
+    )
       .then((article) => article)
       .catch((error) => console.log(error));
   }, []);
@@ -41,18 +46,17 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<any>("");
-  const [ newAvatar ,setNewAvatar] = useState<any>("")
+  const [newAvatar, setNewAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
-  const [ newPDF ,setNewPDF] = useState("")
-  
+  const [newPDF, setNewPDF] = useState("");
+
   const nameArticle = getValues("name");
 
   const filterCategory = ArticleController.filterCategory(
     categories,
     selectCat
   );
-  
- 
+
   const onSubmit = handleSubmit(async (data: any) => {
     const formData = new FormData();
     formData.append("new_cover_file", newAvatar);
@@ -147,6 +151,19 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
               <p className="text-red-400 text-sm">{errors.name.message}</p>
             )}
             <div className="flex flex-col gap-1">
+              <label htmlFor="">Capa Revista</label>
+              <input
+                {...register("capa_name")}
+                type="text"
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                placeholder="Título"
+              />
+            </div>
+            {errors.capa_name && (
+              <p className="text-red-400 text-sm">{errors.capa_name.message}</p>
+            )}
+
+            <div className="flex flex-col gap-1">
               <label htmlFor="">Volume Artigo</label>
               <input
                 {...register("volume")}
@@ -170,25 +187,6 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
             {errors.company && (
               <p className="text-red-400 text-sm">{errors.company.message}</p>
             )}
-            <div className="flex flex-col gap-1">
-              <label htmlFor="">Preço</label>
-              <input
-                {...register("price")}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  setValue("price", Number(value)); // Define o valor como número ou string vazia se não for um número válido
-                }}
-                type="number"
-                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
-                placeholder="Preço"
-              />
-            </div>
-            {errors.price && (
-              <p className="text-red-400 text-sm">
-                {errors.price.message as any}
-              </p>
-            )}
-
             <div className="w-full flex-col  md:flex md:flex-row items-center justify-between">
               <p>Categoria do Artigo</p>
               <select
@@ -220,7 +218,9 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                     {filterCategory.map((magazine: any, index: number) => (
                       <React.Fragment key={index}>
                         {magazine.magazine.map((name: any, index: number) => (
-                          <option key={index} value={name.id}>{name.name}</option>
+                          <option key={index} value={name.id}>
+                            {name.name}
+                          </option>
                         ))}
                       </React.Fragment>
                     ))}
@@ -259,7 +259,11 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                       id="file"
                       ref={fileInputRef}
                       onChange={(e) =>
-                        ArticleController.editUpload(e, setLoading, setNewAvatar)
+                        ArticleController.editUpload(
+                          e,
+                          setLoading,
+                          setNewAvatar
+                        )
                       }
                     />
                     {loading ? (
@@ -269,14 +273,22 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                         {avatar || newAvatar ? (
                           <div className="w-full h-full flex items-center justify-center relative">
                             <img
-                              src={ newAvatar ? URL.createObjectURL(newAvatar) : avatar}
+                              src={
+                                newAvatar
+                                  ? URL.createObjectURL(newAvatar)
+                                  : avatar
+                              }
                               alt=""
                               className="w-full h-52 px-2 py-2 object-cover"
                             />
                             <button
                               type="button"
                               onClick={() => {
-                                ArticleController.clearAvatar(fileInputRef,setAvatar,setNewAvatar);
+                                ArticleController.clearAvatar(
+                                  fileInputRef,
+                                  setAvatar,
+                                  setNewAvatar
+                                );
                               }}
                               className="absolute top-2 right-4"
                             >
@@ -334,7 +346,11 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                   <div className="mt4" style={{ height: "200px" }}>
                     {url ? (
                       <div className="w-full h-52 relative">
-                        <Viewer fileUrl={ newPDF ? URL.createObjectURL(newPDF as any) : url} />
+                        <Viewer
+                          fileUrl={
+                            newPDF ? URL.createObjectURL(newPDF as any) : url
+                          }
+                        />
                         <button
                           onClick={() => {
                             ArticleController.clearPdf(setUrl);
@@ -365,7 +381,11 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                           id="pdf_file"
                           hidden
                           onChange={(e) =>
-                            ArticleController.editUploadPdf(e,setLoading,setNewPDF)
+                            ArticleController.editUploadPdf(
+                              e,
+                              setLoading,
+                              setNewPDF
+                            )
                           }
                         />
                         <label htmlFor="pdf_file" className="cursor-pointer">

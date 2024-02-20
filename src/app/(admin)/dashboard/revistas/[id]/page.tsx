@@ -30,7 +30,7 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
-  const [ newAvatar ,setNewAvatar] = useState<any>("")
+  const [newAvatar, setNewAvatar] = useState<any>("");
   const [newPDF, setNewPDF] = useState<any>("");
   const [employees, setEmployees] = useState([]);
   const [employeesID, setEmployeesID] = useState<any>([]);
@@ -159,6 +159,18 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
               <p className="text-red-400 text-sm">{errors.name.message}</p>
             )}
             <div className="flex flex-col gap-1">
+              <label htmlFor="">Capa Revista</label>
+              <input
+                {...register("capa_name")}
+                type="text"
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                placeholder="Título"
+              />
+            </div>
+            {errors.capa_name && (
+              <p className="text-red-400 text-sm">{errors.capa_name.message}</p>
+            )}
+            <div className="flex flex-col gap-1">
               <label htmlFor="">Volume Revista</label>
               <input
                 {...register("volume")}
@@ -227,11 +239,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                 >
                   <option value="">Selecionar</option>
                   {employees.map((employee: any, index: any) => (
-                    
-                      <option key={index} value={employee.id}>
-                        {employee.name}
-                      </option>
-                    
+                    <option key={index} value={employee.id}>
+                      {employee.name}
+                    </option>
                   ))}
                 </select>
                 <button
@@ -357,7 +367,11 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                         {avatar ? (
                           <div className="w-full h-full flex items-center justify-center relative">
                             <img
-                              src={newAvatar ? URL.createObjectURL(newAvatar): avatar}
+                              src={
+                                newAvatar
+                                  ? URL.createObjectURL(newAvatar)
+                                  : avatar
+                              }
                               alt=""
                               className="w-full h-52 px-2 py-2 object-cover"
                             />
@@ -421,7 +435,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                   <div className="mt4" style={{ height: "200px" }}>
                     {url ? (
                       <div className="w-full h-52 relative">
-                        <Viewer fileUrl={ newPDF ? URL.createObjectURL(newPDF) : url} />
+                        <Viewer
+                          fileUrl={newPDF ? URL.createObjectURL(newPDF) : url}
+                        />
                         <button
                           onClick={() => {
                             MagazineController.clearPdf(setUrl);

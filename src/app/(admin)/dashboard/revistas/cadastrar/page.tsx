@@ -137,12 +137,24 @@ const Magazine = () => {
               <p className="text-red-400 text-sm">{errors.name.message}</p>
             )}
             <div className="flex flex-col gap-1">
+              <label htmlFor="">Capa Revista</label>
+              <input
+                {...register("capa_name")}
+                type="text"
+                className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
+                placeholder="Título"
+              />
+            </div>
+            {errors.capa_name && (
+              <p className="text-red-400 text-sm">{errors.capa_name.message}</p>
+            )}
+            <div className="flex flex-col gap-1">
               <label htmlFor="">Volume Revista</label>
               <input
                 {...register("volume")}
                 type="text"
                 className="w-full h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
-                placeholder="Volume"
+                placeholder="Capa"
               />
             </div>
             {errors.volume && (

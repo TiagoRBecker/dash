@@ -1,4 +1,4 @@
-export const baseURL = "http://191.101.70.103:5000"
+export const baseURL = "http://localhost:5000"
 //"http://localhost:5000"
 //"http://191.101.70.103:5000"
 class Categories  {

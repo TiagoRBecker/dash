@@ -1,4 +1,5 @@
 "use client";
+import Filter from "@/components/Filter";
 import Header from "@/components/Header";
 import Spinner from "@/components/Spinner";
 import { baseURL } from "@/components/utils/api";
@@ -27,8 +28,28 @@ const ArticleHome = () => {
       .catch((error) => console.log(error));
   }, []);
 
-  const searchData = () => {};
+  const handlFilter = async (filterValues?: any) => {
+    const {
+      authorValue,
+      nameValue,
+      companyValue,
+      volumeValue,
+      categoryValue,
+      selectvalue,
+    } = filterValues;
 
+    const magazines = await fetch(
+      `${baseURL}/articles?author=${authorValue}&name=${nameValue}&company=${companyValue}&volume=${volumeValue}&category=${categoryValue}&take=${selectvalue}`,
+      {
+        method: "GET",
+      }
+    );
+    const response = await magazines.json();
+    console.log(response)
+    setArticles(response);
+
+    return;
+  };
   const deletArticle = async (id: any, name: any) => {
     const del = await Swal.fire({
       position: "center",
@@ -77,7 +98,9 @@ const ArticleHome = () => {
   }
   return (
     <section className="w-full h-full flex  flex-col items-center px-4 gap-4 pb-10">
-      <Header search={searchData} />
+      <div className="pl-[8%] w-full h-[100px] flex items-center justify-around">
+        <Filter onSubmitFilter={handlFilter} />
+      </div>
       {articles.length === 0 ? (
         <div className="w-full h-screen flex flex-col items-center justify-center gap-4">
           <p className="text-gray-400">Nenhum artigo cadastrado!</p>
@@ -99,6 +122,7 @@ const ArticleHome = () => {
                   <Th color={"white"}>Image</Th>
                   <Th color={"white"}>Autor</Th>
                   <Th color={"white"}>Nome</Th>
+                  <Th color={"white"}>Capa</Th>
                   <Th color={"white"}>Editora</Th>
                   <Th color={"white"}>Volume</Th>
                   <Th color={"white"}>Categorias</Th>
@@ -125,6 +149,16 @@ const ArticleHome = () => {
                         whiteSpace="nowrap"
                       >
                         {book.name}
+                      </Text>
+                    </Td>
+                    <Td>
+                      <Text
+                        maxW="70px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                      >
+                        {book?.capa_name}
                       </Text>
                     </Td>
                     <Td>{book?.company}</Td>

@@ -21,15 +21,9 @@ export const article = z.object({
   volume: z.string().min(1, { message: "Campo Obrigatorio" }),
   author: z.string().min(1, { message: "Campo Obrigatorio" }),
   company: z.string().min(1, { message: "Campo Obrigatorio" }),
-
-  price: z.any().refine(
-    (value) => {
-      return value !== "" && value !== null;
-    },
-    { message: "Selecione uma opção válida" }
-  ),
   status: z.enum(['free', 'recommended',"most-read","trend"]),
   description: z.string().min(1, { message: "Campo Obrigatorio" }),
+  capa_name: z.string().min(1, { message: "Campo Obrigatorio" }),
   categoryId: z.any().refine(
     (value) => {
       return value !== "" && value !== null;
@@ -55,7 +49,7 @@ export const magazine = z.object({
   volume: z.string().min(1, { message: "Campo Obrigatorio" }),
   author: z.string().min(1, { message: "Campo Obrigatorio" }),
   company: z.string().min(1, { message: "Campo Obrigatorio" }),
-
+  capa_name: z.string().min(1, { message: "Campo Obrigatorio" }),
   price: z.any().refine(
     (value) => {
       return value !== "" && value !== null;

@@ -11,7 +11,9 @@ import { useSession } from "next-auth/react";
 import Filter from "../Filter";
 const Header = ({ search, value, onChange, handleMenu }: any) => {
   const { data: session } = useSession();
-
+ const handleSubmitFilter = (filterValues:any)=>{
+   console.log(filterValues)
+ }
   return (
     <div className="w-full h-28 flex items-center justify-between pl-[8%] py-2 bg-white ">
       {/* <div className="w-full flex items-center gap-2">
@@ -42,7 +44,7 @@ const Header = ({ search, value, onChange, handleMenu }: any) => {
         
       </div>
   */}
-      <Filter/>
+      <Filter onSubmitFilter={handleSubmitFilter}/>
       
     </div>
   );
