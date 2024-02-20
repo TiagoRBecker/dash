@@ -12,6 +12,7 @@ import {
   Th,
   Thead,
   Tr,
+  Text,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,11 +22,12 @@ const ArticleHome = () => {
   const [articles, setArticles] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    ArticleController.getArticles(setArticles,setLoading).then((article)=> article).catch((error)=>console.log(error))
+    ArticleController.getArticles(setArticles, setLoading)
+      .then((article) => article)
+      .catch((error) => console.log(error));
   }, []);
 
   const searchData = () => {};
-  
 
   const deletArticle = async (id: any, name: any) => {
     const del = await Swal.fire({
@@ -54,7 +56,7 @@ const ArticleHome = () => {
           "Clica no botão para continuar!",
           "success"
         );
-        await ArticleController.getArticles(setLoading,setArticles);
+        await ArticleController.getArticles(setLoading, setArticles);
       } catch (error) {
         console.log(error);
         //Exibe o modal de erro caso exista um
@@ -74,7 +76,7 @@ const ArticleHome = () => {
     );
   }
   return (
-    <section className="w-full h-full flex  flex-col items-center px-4 gap-4">
+    <section className="w-full h-full flex  flex-col items-center px-4 gap-4 pb-10">
       <Header search={searchData} />
       {articles.length === 0 ? (
         <div className="w-full h-screen flex flex-col items-center justify-center gap-4">
@@ -115,13 +117,22 @@ const ArticleHome = () => {
                       />
                     </Td>
                     <Td>{book.author}</Td>
-                    <Td>{book.name}</Td>
+                    <Td>
+                      <Text
+                        maxW="180px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                      >
+                        {book.name}
+                      </Text>
+                    </Td>
                     <Td>{book?.company}</Td>
                     <Td>{book.volume}</Td>
                     <Td>{book?.Category?.name}</Td>
 
                     <Td>
-                      {Number(book?.price).toLocaleString("pt-br", {
+                      {Number(book?.price / 100).toLocaleString("pt-br", {
                         style: "currency",
                         currency: "BRL",
                       })}

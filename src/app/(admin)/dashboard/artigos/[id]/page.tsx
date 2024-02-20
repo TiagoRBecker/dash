@@ -1,6 +1,6 @@
 "use client";
 import Spinner from "@/components/Spinner";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Viewer, Worker } from "@react-pdf-viewer/core/lib";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import CategoriesApi, { baseURL } from "@/components/utils/api";
@@ -13,6 +13,7 @@ import { Article, article } from "@/components/utils/validation";
 import ArticleController from "@/hooks/article"; //Hook responsavel pela logica dos artigos
 
 const ArticleID = ({ params }: { params: { id: string } }) => {
+  const fileInputRef = useRef(null);
   const {
     register,
     handleSubmit,
@@ -32,7 +33,7 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
     ArticleController.getCategories(setCategories, setLoading)
       .then((cat) => cat)
       .catch((error) => console.log(error));
-    ArticleController.getArticleById(slug, setValue, setLoading)
+    ArticleController.getArticleById(slug, setValue, setLoading,setAvatar,setUrl)
       .then((article) => article)
       .catch((error) => console.log(error));
   }, []);
@@ -40,18 +41,22 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<any>("");
+  const [ newAvatar ,setNewAvatar] = useState<any>("")
   const [url, setUrl] = useState("");
+  const [ newPDF ,setNewPDF] = useState("")
+  
   const nameArticle = getValues("name");
 
   const filterCategory = ArticleController.filterCategory(
     categories,
     selectCat
   );
-
+  
+ 
   const onSubmit = handleSubmit(async (data: any) => {
     const formData = new FormData();
-    formData.append("cover_file", avatar);
-    formData.append("pdf_file", url);
+    formData.append("new_cover_file", newAvatar);
+    formData.append("new_pdf_file", newPDF);
 
     for (const key in data) {
       formData.append(key, data[key] as any);
@@ -106,7 +111,7 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <section className="w-full h-full flex items-center justify-center ">
+    <section className="w-full h-full flex items-center justify-center  ">
       <form
         className="w-[80%] mx-auto   rounded-md  py-2 px-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)] "
         encType="multipart/form-data"
@@ -213,11 +218,11 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                     className="w-full md:w-[50%] h-7 outline-none border-[1px] border-gray-400 rounded-sm pl-2"
                   >
                     {filterCategory.map((magazine: any, index: number) => (
-                      <>
+                      <React.Fragment key={index}>
                         {magazine.magazine.map((name: any, index: number) => (
-                          <option value={name.id}>{name.name}</option>
+                          <option key={index} value={name.id}>{name.name}</option>
                         ))}
-                      </>
+                      </React.Fragment>
                     ))}
                   </select>
                 </div>
@@ -252,24 +257,26 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                       type="file"
                       hidden
                       id="file"
+                      ref={fileInputRef}
                       onChange={(e) =>
-                        ArticleController.upload(e, setLoading, setAvatar)
+                        ArticleController.editUpload(e, setLoading, setNewAvatar)
                       }
                     />
                     {loading ? (
                       <Spinner />
                     ) : (
                       <>
-                        {avatar ? (
+                        {avatar || newAvatar ? (
                           <div className="w-full h-full flex items-center justify-center relative">
                             <img
-                              src={URL.createObjectURL(avatar)}
+                              src={ newAvatar ? URL.createObjectURL(newAvatar) : avatar}
                               alt=""
-                              className="w-full h-52 px-2 py-2 object-fill"
+                              className="w-full h-52 px-2 py-2 object-cover"
                             />
                             <button
+                              type="button"
                               onClick={() => {
-                                ArticleController.clearAvatar(setAvatar);
+                                ArticleController.clearAvatar(fileInputRef,setAvatar,setNewAvatar);
                               }}
                               className="absolute top-2 right-4"
                             >
@@ -327,7 +334,7 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                   <div className="mt4" style={{ height: "200px" }}>
                     {url ? (
                       <div className="w-full h-52 relative">
-                        <Viewer fileUrl={URL.createObjectURL(url as any)} />
+                        <Viewer fileUrl={ newPDF ? URL.createObjectURL(newPDF as any) : url} />
                         <button
                           onClick={() => {
                             ArticleController.clearPdf(setUrl);
@@ -358,7 +365,7 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
                           id="pdf_file"
                           hidden
                           onChange={(e) =>
-                            ArticleController.uploadPdf(e, setUrl, setLoading)
+                            ArticleController.editUploadPdf(e,setLoading,setNewPDF)
                           }
                         />
                         <label htmlFor="pdf_file" className="cursor-pointer">

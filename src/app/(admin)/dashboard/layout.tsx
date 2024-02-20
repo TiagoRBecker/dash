@@ -75,6 +75,9 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         </div>
+        <footer className="w-full h-28 flex items-center justify-center">
+          <h1>aqui</h1>
+        </footer>
       </section>
     </>
   );

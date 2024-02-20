@@ -32,14 +32,17 @@ class ArticleService {
     setLoading(false)
     return
   };
-  async getArticleById  (slug:any,setValue:any,setLoading:any)  {
+  async getArticleById  (slug:any,setValue:any,setLoading:any,setAvatar:any,setUrl:any)  {
     const getArticle = await fetch(`${this.baseURL}/article-edit/${slug}`, {
       method: "GET",
     });
     const response = await getArticle.json();
+    
     Object.keys(response).forEach((key: any) => {
       setValue(key, response[key] as any);
     });
+    setAvatar(response.cover)
+    setUrl(response.articlepdf)
     setLoading(false);
     return;
   };
@@ -49,7 +52,7 @@ class ArticleService {
       );
       return filterCat
   }
-   upload = async (e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setAvatar:any) => {
+   upload(e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setAvatar:any){
     setLoading(true);
     const files = e.target.files as any;
     if (files) {
@@ -60,10 +63,7 @@ class ArticleService {
 
     return;
   };
-   clearAvatar = (setAvatar:any) => {
-    setAvatar("");
-  };
-    uploadPdf = (e: React.ChangeEvent<HTMLInputElement>,setUrl:any,setLoading:any) => {
+  uploadPdf = (e: React.ChangeEvent<HTMLInputElement>,setUrl:any,setLoading:any) => {
     const files = e.target.files as any;
     if (files) {
       // Se um arquivo foi fornecido, atualize a URL
@@ -71,6 +71,34 @@ class ArticleService {
       setLoading(false);
     }
   };
+ editUpload(e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setNewAvatar:any){
+    setLoading(true);
+    const files = e.target.files as any;
+    if (files) {
+      // Se um arquivo foi fornecido, atualize a URL
+      setNewAvatar(files[0]);
+      setLoading(false);
+    }
+
+    return;
+  };
+  editUploadPdf(e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setNewPdf:any){
+    setLoading(true);
+    const files = e.target.files as any;
+    if (files) {
+      // Se um arquivo foi fornecido, atualize a URL
+      setNewPdf(files[0]);
+      setLoading(false);
+    }
+
+    return;
+  };
+   clearAvatar = (fileInputRef:any,setAvatar:any,setNewAvatar?:any) => {
+    fileInputRef.current.value = "";
+    setNewAvatar(null); 
+    setAvatar(null); 
+  };
+   
     clearPdf = (setUrl:any) => {
     setUrl("");
   };

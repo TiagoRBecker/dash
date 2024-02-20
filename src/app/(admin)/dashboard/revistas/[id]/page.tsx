@@ -30,6 +30,8 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState<any>("");
   const [url, setUrl] = useState("");
+  const [ newAvatar ,setNewAvatar] = useState<any>("")
+  const [newPDF, setNewPDF] = useState<any>("");
   const [employees, setEmployees] = useState([]);
   const [employeesID, setEmployeesID] = useState<any>([]);
   const [errorPicture, setErrorPicture] = useState(false);
@@ -50,7 +52,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
       slug,
       setValue,
       setEmployeesMagazine,
-      setLoading
+      setLoading,
+      setAvatar,
+      setUrl
     )
       .then((emp) => emp)
       .catch((error) => console.log(error));
@@ -58,8 +62,8 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
 
   const onSubmit = handleSubmit(async (data: any) => {
     const formData = new FormData();
-    formData.append("cover_file", avatar);
-    formData.append("pdf_file", url);
+    formData.append("new_cover_file", newAvatar);
+    formData.append("new_pdf_file", newPDF);
     formData.append("employes", JSON.stringify(employeesID));
     for (const key in data) {
       formData.append(key, data[key] as any);
@@ -223,11 +227,11 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                 >
                   <option value="">Selecionar</option>
                   {employees.map((employee: any, index: any) => (
-                    <>
+                    
                       <option key={index} value={employee.id}>
                         {employee.name}
                       </option>
-                    </>
+                    
                   ))}
                 </select>
                 <button
@@ -353,9 +357,9 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                         {avatar ? (
                           <div className="w-full h-full flex items-center justify-center relative">
                             <img
-                              src={URL.createObjectURL(avatar)}
+                              src={newAvatar ? URL.createObjectURL(newAvatar): avatar}
                               alt=""
-                              className="w-full h-52 px-2 py-2 object-fill"
+                              className="w-full h-52 px-2 py-2 object-cover"
                             />
                             <button
                               onClick={() => {
@@ -417,7 +421,7 @@ const EditMagazine = ({ params }: { params: { id: string } }) => {
                   <div className="mt4" style={{ height: "200px" }}>
                     {url ? (
                       <div className="w-full h-52 relative">
-                        <Viewer fileUrl={URL.createObjectURL(url as any)} />
+                        <Viewer fileUrl={ newPDF ? URL.createObjectURL(newPDF) : url} />
                         <button
                           onClick={() => {
                             MagazineController.clearPdf(setUrl);

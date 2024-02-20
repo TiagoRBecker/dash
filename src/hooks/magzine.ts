@@ -16,16 +16,17 @@ class Magazine {
     setEmployees(response)
     return 
   }
-  async getByMagazine(slug:string,setValue:any,setEmployeesMagazine:any,setLoading:any){
-    const getArticle = await fetch(`${this.baseURL}/magazine/${slug}`, {
+  async getByMagazine(slug:string,setValue:any,setEmployeesMagazine:any,setLoading:any,setAvatar:any,setUrl:any){
+    const getArticle = await fetch(`${this.baseURL}/edit-magazine/${slug}`, {
       method: "GET",
     });
     const response = await getArticle.json();
     Object.keys(response).forEach((key: any) => {
       setValue(key, response[key] as any);
     });
-   setEmployeesMagazine(response.employees)
-  
+    setEmployeesMagazine(response.employees)
+    setAvatar(response.cover)
+    setUrl(response.magazine_pdf)
     setLoading(false);
     return;
   };
@@ -87,10 +88,7 @@ class Magazine {
 
     return;
   };
-  clearAvatar = (setAvatar:any) => {
-    setAvatar("");
-  };
-    uploadPdf = (e: React.ChangeEvent<HTMLInputElement>,setUrl:any,setLoading:any) => {
+  uploadPdf = (e: React.ChangeEvent<HTMLInputElement>,setUrl:any,setLoading:any) => {
     const files = e.target.files as any;
     if (files) {
       // Se um arquivo foi fornecido, atualize a URL
@@ -98,6 +96,32 @@ class Magazine {
       setLoading(false);
     }
   };
+  editUpload(e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setNewAvatar:any){
+    setLoading(true);
+    const files = e.target.files as any;
+    if (files) {
+      // Se um arquivo foi fornecido, atualize a URL
+      setNewAvatar(files[0]);
+      setLoading(false);
+    }
+
+    return;
+  };
+  editUploadPdf(e: React.ChangeEvent<HTMLInputElement>,setLoading:any,setNewPdf:any){
+    setLoading(true);
+    const files = e.target.files as any;
+    if (files) {
+      // Se um arquivo foi fornecido, atualize a URL
+      setNewPdf(files[0]);
+      setLoading(false);
+    }
+
+    return;
+  };
+  clearAvatar = (setAvatar:any) => {
+    setAvatar("");
+  };
+ 
     clearPdf = (setUrl:any) => {
     setUrl("");
   };

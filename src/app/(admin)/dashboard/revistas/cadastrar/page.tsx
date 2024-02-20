@@ -288,7 +288,7 @@ const Magazine = () => {
                             <img
                               src={URL.createObjectURL(avatar)}
                               alt=""
-                              className="w-full h-52 px-2 py-2 object-fill"
+                              className="w-full h-52 px-2 py-2 object-cover"
                             />
                             <button
                               onClick={() => {
