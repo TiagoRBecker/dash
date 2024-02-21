@@ -7,8 +7,9 @@ class ArticleService {
     constructor() {
       this.baseURL = baseURL ;
     }
-    async getArticles(setArticles:any,setLoading:any) {
-    const get = await fetch(`${this?.baseURL}/articles`, {
+    async getArticles(setArticles:any,setLoading:any,setTotalPages:any,page:string) {
+      const currentPage = page || 1
+    const get = await fetch(`${this?.baseURL}/articles?page=${currentPage}`, {
       method: "GET",
       cache: "no-cache",
       headers: {
@@ -18,7 +19,8 @@ class ArticleService {
 
     if (get.status === 200) {
       const response = await get.json();
-      setArticles(response);
+      setArticles(response.getArticles);
+      setTotalPages(response.finalPage)
       setLoading(false);
       return;
     }

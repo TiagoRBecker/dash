@@ -5,6 +5,7 @@ import Spinner from "@/components/Spinner";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { baseURL } from "@/components/utils/api";
+import { useSearchParams } from "next/navigation";
 import {
   Table,
   Thead,
@@ -21,21 +22,29 @@ import {
  
 } from "@chakra-ui/react";
 import Filter from "@/components/Filter";
+import  Pagination  from "@/components/Pagination";
+import { Paginationteste } from "@/components/Pagination";
 
 const Magazines = () => {
+   const query = useSearchParams()
+   const page = query.get("page")
   const [loading, setLoading] = useState(true);
   const [magazines, setMagazine] = useState([]);
+  const [ totalPages , setTotalPages] = useState(0)
+ 
   useEffect(() => {
     getMagazines();
   }, []);
 
 
   const getMagazines = async () => {
-    const magazines = await fetch(`${baseURL}/magazines`, {
+    const currentPage = page || 1
+    const magazines = await fetch(`${baseURL}/magazines?page=${currentPage}`, {
       method: "GET",
     });
     const response = await magazines.json();
-    setMagazine(response);
+    setMagazine(response.getMagazine);
+    setTotalPages(response.finalPage)
     setLoading(false);
     return;
   };
@@ -92,6 +101,7 @@ const Magazines = () => {
       }
     }
   };
+
   if (loading) {
     return (
       <section className="w-full h-screen flex flex-col items-center justify-center px-4 ">
@@ -106,7 +116,7 @@ const Magazines = () => {
       <Filter onSubmitFilter={handlFilter} />
       </div>
      
-
+ 
       {magazines && magazines.length > 0 ? (
         <>
           <TableContainer width={"99%"}>
@@ -178,7 +188,9 @@ const Magazines = () => {
               </Tbody>
             </Table>
           </TableContainer>
-
+          {totalPages > 1 && (
+        <Paginationteste totalPages={totalPages} pageParam="page"  />
+      )}
           <div className="w-full flex items-center justify-center mt-4">
             <Link href={`/dashboard/revistas/cadastrar`}>
               <button className="px-4 py-2 bg-[#14b7a1]  rounded-md text-white">
@@ -186,6 +198,8 @@ const Magazines = () => {
               </button>
             </Link>
           </div>
+        
+    
         </>
       ) : (
         <div className="w-full h-screen flex flex-col items-center justify-center gap-4">

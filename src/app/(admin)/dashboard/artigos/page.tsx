@@ -1,6 +1,7 @@
 "use client";
 import Filter from "@/components/Filter";
 import Header from "@/components/Header";
+import { Paginationteste } from "@/components/Pagination";
 import Spinner from "@/components/Spinner";
 import { baseURL } from "@/components/utils/api";
 import ArticleController from "@/hooks/article";
@@ -17,16 +18,21 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 const ArticleHome = () => {
+  const query = useSearchParams()
+  const page = query.get("page") as string
   const [articles, setArticles] = useState<any>([]);
   const [loading, setLoading] = useState(true);
+  const [ totalPages , setTotalPages] = useState(0)
+  
   useEffect(() => {
-    ArticleController.getArticles(setArticles, setLoading)
+    ArticleController.getArticles(setArticles, setLoading,setTotalPages,page)
       .then((article) => article)
       .catch((error) => console.log(error));
-  }, []);
+  }, [page]);
 
   const handlFilter = async (filterValues?: any) => {
     const {
@@ -77,7 +83,7 @@ const ArticleHome = () => {
           "Clica no botão para continuar!",
           "success"
         );
-        await ArticleController.getArticles(setLoading, setArticles);
+        await ArticleController.getArticles(setLoading, setArticles,setTotalPages,page);
       } catch (error) {
         console.log(error);
         //Exibe o modal de erro caso exista um
@@ -113,7 +119,7 @@ const ArticleHome = () => {
           </div>
         </div>
       ) : (
-        <div className="w-full">
+        <div className="">
           <TableContainer width={"100%"}>
             <Table variant="simple">
               <TableCaption>Artigos Cadastrados</TableCaption>
@@ -191,7 +197,10 @@ const ArticleHome = () => {
               </Tbody>
             </Table>
           </TableContainer>
-
+          <div className="flex items-center justify-center">
+          <Paginationteste totalPages={totalPages} pageParam="page"/>
+          </div>
+          
           <div className="w-full flex items-center justify-center mt-4">
             <Link href={"/dashboard/artigos/cadastrar"}>
               <button className="px-4 py-2 bg-[#14b7a1]  rounded-md text-white">
