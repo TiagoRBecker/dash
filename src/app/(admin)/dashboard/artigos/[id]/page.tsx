@@ -344,7 +344,7 @@ const ArticleID = ({ params }: { params: { id: string } }) => {
               <div className="w-full h-full">
                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
                   <div className="mt4" style={{ height: "200px" }}>
-                    {url ? (
+                    {url || newPDF ? (
                       <div className="w-full h-52 relative">
                         <Viewer
                           fileUrl={

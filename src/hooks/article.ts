@@ -8,6 +8,7 @@ class ArticleService {
       this.baseURL = baseURL ;
     }
     async getArticles(setArticles:any,setLoading:any,setTotalPages:any,page:string) {
+      setLoading(true)
       const currentPage = page || 1
     const get = await fetch(`${this?.baseURL}/articles?page=${currentPage}`, {
       method: "GET",
